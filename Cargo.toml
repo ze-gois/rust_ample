@@ -24,8 +24,8 @@ path = "src/entry.rs"
 test = false
 
 [dependencies]
-userspace = { version = "*" }
-kernelspace = { version = "*" }
+userspace = { version = "0.1.0" }
+kernelspace = { version = "0.1.0" }
 
 [build-dependencies]
 cc = "1.0"
