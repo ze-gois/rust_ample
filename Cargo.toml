@@ -1,0 +1,37 @@
+[package]
+name = "ample"
+publish = true
+version = "0.1.0"
+edition = "2024"
+authors = ["José Gois <ze.gois.00@gmail.com>"]
+description = "ample library"
+documentation = "https://docs.rs/bitflags"
+repository = "https://github.com/ze-gois/rust_ample"
+readme = "README.md"
+homepage = "https://userspace.builders"
+license-file = "LICENSE"
+keywords = ["architecture", "operating_system"]
+categories = ["no-std", "os"]
+
+[lib]
+name = "ample"
+path = "src/library.rs"
+test = false
+
+[[bin]]
+name = "ample"
+path = "src/entry.rs"
+test = false
+
+[dependencies]
+userspace = { version = "*" }
+kernelspace = { version = "*" }
+
+[build-dependencies]
+cc = "1.0"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
