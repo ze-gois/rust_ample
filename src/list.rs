@@ -1,16 +1,17 @@
-use crate::traits::AmpleAlloc;
+use crate::traits::Allocatable;
+use crate::traits::allocatable::Layout;
 
 pub struct ListNode<T> {
     pub next: *mut ListNode<T>,
     pub elem: T,
 }
 
-pub struct List<T, A: AmpleAlloc> {
+pub struct List<T, A: Allocatable> {
     head: *mut ListNode<T>,
     alloc: A,
 }
 
-impl<T, A: AmpleAlloc + Copy> List<T, A> {
+impl<T, A: Allocatable + Copy> List<T, A> {
     pub const fn new(alloc: A) -> Self {
         Self {
             head: core::ptr::null_mut(),
@@ -19,7 +20,7 @@ impl<T, A: AmpleAlloc + Copy> List<T, A> {
     }
 
     pub fn push_front(&mut self, value: T) -> Result<(), ()> {
-        let layout = core::alloc::Layout::new::<ListNode<T>>();
+        let layout = Layout { size: 3, align: 4 };
         let ptr = unsafe { self.alloc.allocate(layout) };
         if ptr.is_null() {
             return Err(());
@@ -43,7 +44,7 @@ impl<T, A: AmpleAlloc + Copy> List<T, A> {
             let node = self.head;
             self.head = (*node).next;
             let value = core::ptr::read(&(*node).elem);
-            let layout = core::alloc::Layout::new::<ListNode<T>>();
+            let layout = Layout { size: 3, align: 4 };
             self.alloc.deallocate(node as *mut u8, layout);
             Some(value)
         }

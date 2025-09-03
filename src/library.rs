@@ -4,8 +4,14 @@
 #![feature(generic_const_exprs)]
 #![feature(generic_const_items)]
 
+pub struct Origin {}
+
+pub mod list;
 pub mod macros;
+pub mod result;
+pub mod string;
 pub mod traits;
-pub mod types;
 
 extern crate alloc;
+
+trait_implement_primitives!();

@@ -1,12 +1,16 @@
 #[macro_export]
 macro_rules! r#struct {
-    ($vis:vis $struct_identifier:ident { $($(#[$doc:meta])* $field_visibility:vis $field_identifier:ident: $field_type:ty),*$(,)?}) => {
+    ($(#[$($struct_doc:meta),*])* $vis:vis $struct_identifier:ident { $($(#[$field_doc:meta])* $field_visibility:vis $field_identifier:ident: $field_type:ty),*$(,)?}) => {
 
         // #[repr(C,packed)]
-        #[derive(Debug, Clone, Copy)]
+        // #[derive(Debug, Clone, Copy)]
+        $(#[$($struct_doc),*])*
+        #[derive(Clone, Copy, Debug)]
         $vis struct $struct_identifier {
-            $($(#[$doc])*)*
-            $($field_visibility $field_identifier: $field_type),*
+            $(
+                $(#[$field_doc])*
+                $field_visibility $field_identifier: $field_type
+            ),*
         }
 
         impl $crate::traits::Bytes<crate::Origin,crate::Origin> for $struct_identifier {
@@ -93,6 +97,25 @@ macro_rules! r#struct {
                 }
             }
         }
+
+        // impl Clone for $struct_identifier
+        // where
+        //     $struct_identifier: $crate::traits::Bytes<crate::Origin, crate::Origin>,
+        //     [u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE]:,
+        // {
+        //     fn clone(&self) -> $struct_identifier {
+        //         let bytes = <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(&self);
+        //         <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(bytes)
+        //     }
+        // }
+
+        // impl<$struct_identifier> Copy for $struct_identifier
+        // where
+        //     $struct_identifier: $crate::traits::Bytes<crate::Origin, crate::Origin>,
+        //     [u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE]:,
+        // {
+        // }
+
     }
 }
 pub use r#struct;
