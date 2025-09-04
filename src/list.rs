@@ -1,3 +1,5 @@
+pub mod double_linked;
+
 // use crate::traits::Allocatable;
 // use crate::traits::allocatable::Layout;
 

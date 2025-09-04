@@ -4,9 +4,7 @@
 #![feature(generic_const_exprs)]
 #![feature(generic_const_items)]
 
-r#struct! {
-    pub Origin {}
-}
+pub struct Origin {}
 
 pub mod list;
 pub mod macros;

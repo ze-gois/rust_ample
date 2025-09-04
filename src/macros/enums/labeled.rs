@@ -37,6 +37,7 @@
 #[rustfmt::skip]
 macro_rules! enum_labeled {
     (
+        $(#[$($struct_doc:meta),*])*
         $enum_vis:vis $enum_identifier:ident,
         $enum_discriminant_type:ty,
         $enum_label:expr,
@@ -55,6 +56,7 @@ macro_rules! enum_labeled {
     ) => {
 
         $crate::r#enum!(
+            $(#[$($struct_doc),*])*
             $enum_vis $enum_identifier,
             $enum_discriminant_type, [
             $(

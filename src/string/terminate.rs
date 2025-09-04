@@ -1,12 +1,14 @@
-pub fn terminate(head: &str) -> *const u8 {
+pub fn terminate<Observer, Reference>(head: &str) -> *const u8
+where
+    u8: crate::traits::Allocatable<Observer, Reference>,
+{
     let layout = crate::traits::allocatable::Layout {
         size: head.len().checked_add(1).unwrap(),
         align: core::mem::align_of::<u8>(),
     };
 
-    let tailed = unsafe {
-        <u8 as crate::traits::Allocatable<crate::Origin, crate::Origin>>::allocate_zeroed(layout)
-    };
+    let tailed =
+        unsafe { <u8 as crate::traits::Allocatable<Observer, Reference>>::allocate_zeroed(layout) };
 
     if tailed.is_null() {
         panic!("allocation failed");

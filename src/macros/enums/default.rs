@@ -1,7 +1,8 @@
 #[macro_export]
 macro_rules! r#enum {
-    ($enum_vis:vis $enum_identifier:ident, $enum_discriminant_type:ty, [$([$variant_discriminant:expr,$variant_identifier:ident,$($variant_type:tt)::*]),* $(,)? ]) => {
-        #[derive(Debug, Clone, Copy)]
+    ($(#[$($struct_doc:meta),*])* $enum_vis:vis $enum_identifier:ident, $enum_discriminant_type:ty, [$([$variant_discriminant:expr,$variant_identifier:ident,$($variant_type:tt)::*]),* $(,)? ]) => {
+        // #[derive(Debug, Clone, Copy)]
+        $(#[$($struct_doc),*])*
         $enum_vis enum $enum_identifier {
             $($variant_identifier($($variant_type)::*)),*
         }

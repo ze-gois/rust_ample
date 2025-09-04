@@ -3,6 +3,7 @@
 macro_rules! result {
     (
         $(
+            $(#[$($result_doc:meta),*])*
             $result_identifier:ident;
             $result_label:expr;
             $result_discriminant_type:ty;
@@ -21,7 +22,7 @@ macro_rules! result {
         );*
     ) => {
         $(
-            $crate::r#enum!(pub $result_identifier, $result_discriminant_type,[
+            $crate::r#enum!(#[derive(Debug, Clone, Copy)] $(#[$($result_doc),*])* pub $result_identifier, $result_discriminant_type,[
                 $([$variant_discriminant, $variant_identifier, $($variant_type)::*],)*
             ]);
         )*
