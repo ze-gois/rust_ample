@@ -6,6 +6,7 @@
 
 pub struct Origin {}
 
+pub mod imagetic;
 pub mod list;
 pub mod macros;
 pub mod result;
