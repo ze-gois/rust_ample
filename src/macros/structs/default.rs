@@ -18,31 +18,35 @@ macro_rules! r#struct {
 
             fn to_bytes(&self, endianness: bool) -> [u8; Self::BYTES_SIZE] {
                 let mut b = [0u8; Self::BYTES_SIZE];
-                let mut o = 0;
+                let mut _o = 0;
+                let _ = endianness;
                 $(
-                    b[o..(o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)].copy_from_slice(
+                    b[_o..(_o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)].copy_from_slice(
                         &if endianness {
                             <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_le_bytes(&self.$field_identifier)
                         } else {
                             <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_be_bytes(&self.$field_identifier)
                         }
                     );
-                    o = o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
                 )*
+                b = b;
                 b
             }
 
             fn from_bytes(bytes : [u8; Self::BYTES_SIZE], endianness: bool) -> Self {
-                let mut o = 0;
+                let mut _o = 0;
+                let _ = bytes;
+                let _ = endianness;
                 $(
                     let mut field_bytes = [0u8; <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE];
-                    field_bytes.copy_from_slice(&bytes[o..(o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)]);
+                    field_bytes.copy_from_slice(&bytes[_o..(_o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)]);
                     let $field_identifier = if endianness {
                         <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_le_bytes(field_bytes)
                     } else {
                         <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_be_bytes(field_bytes)
                     };
-                    o = o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
                 )*
                 Self {
                     $($field_identifier,)*

@@ -12,3 +12,6 @@ pub mod traits;
 
 #[macro_use]
 pub mod tuples;
+
+#[macro_use]
+pub mod string;

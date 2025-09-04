@@ -1,6 +1,12 @@
 pub fn terminate(head: &str) -> *const u8 {
-    let layout = core::alloc::Layout::array::<u8>(head.len() + 1).unwrap();
-    let tailed = unsafe { alloc::alloc::alloc_zeroed(layout) };
+    let layout = crate::traits::allocatable::Layout {
+        size: head.len().checked_add(1).unwrap(),
+        align: core::mem::align_of::<u8>(),
+    };
+
+    let tailed = unsafe {
+        <u8 as crate::traits::Allocatable<crate::Origin, crate::Origin>>::allocate_zeroed(layout)
+    };
 
     if tailed.is_null() {
         panic!("allocation failed");
