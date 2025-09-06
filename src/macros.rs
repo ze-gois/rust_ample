@@ -15,3 +15,6 @@ pub mod tuples;
 
 #[macro_use]
 pub mod string;
+
+pub use enums::default::r#enum;
+pub use structs::default::r#struct;

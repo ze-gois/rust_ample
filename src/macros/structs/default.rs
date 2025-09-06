@@ -3,6 +3,7 @@ macro_rules! r#struct {
     ($(#[$($struct_doc:meta),*])* $vis:vis $struct_identifier:ident { $($(#[$field_doc:meta])* $field_visibility:vis $field_identifier:ident: $field_type:ty),*$(,)?}) => {
         // #[repr(C,packed)]
         // #[derive(Debug, Clone, Copy)]
+        #[derive(Debug)]
         $(#[$($struct_doc),*])*
         $vis struct $struct_identifier {
             $(
@@ -16,19 +17,23 @@ macro_rules! r#struct {
 
             fn to_bytes(&self, endianness: bool) -> [u8; Self::BYTES_SIZE] {
                 let mut b = [0u8; Self::BYTES_SIZE];
-                let mut _o = 0;
-                let _ = endianness;
+                let mut o = 0;
+                // let _ = endianness;
                 $(
-                    b[_o..(_o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)].copy_from_slice(
+                    println!("Oi");
+                    b[o..(o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)].copy_from_slice(
                         &if endianness {
+                            println!("Oi 1: {:?}", core::any::type_name::<$field_type>());
                             <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_le_bytes(&self.$field_identifier)
                         } else {
+                            println!("Oi2");
                             <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_be_bytes(&self.$field_identifier)
                         }
                     );
-                    _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    o = o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    println!("Oi32");
                 )*
-                b = b;
+                println!("Oi");
                 b
             }
 

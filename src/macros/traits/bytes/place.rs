@@ -4,11 +4,28 @@ macro_rules! trait_place_bytes {
         pub trait Bytes<Observer, Reference> {
             const BYTES_SIZE: usize;
 
-            fn to_bytes(&self, endianness: bool) -> [u8; Self::BYTES_SIZE];
-            fn to_le_bytes(&self) -> [u8; Self::BYTES_SIZE] {
+            fn to_bytes(
+                &self,
+                endianness: bool,
+            ) -> [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]
+            where
+                [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]:;
+
+            fn to_le_bytes(
+                &self,
+            ) -> [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]
+            where
+                [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]:,
+            {
                 self.to_bytes(true)
             }
-            fn to_be_bytes(&self) -> [u8; Self::BYTES_SIZE] {
+
+            fn to_be_bytes(
+                &self,
+            ) -> [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]
+            where
+                [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]:,
+            {
                 self.to_bytes(false)
             }
 

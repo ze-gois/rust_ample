@@ -1,6 +1,6 @@
 pub fn terminate<Observer, Reference>(head: &str) -> *const u8
 where
-    u8: crate::traits::Allocatable<Observer, Reference>,
+    u8: crate::traits::Allocatable,
 {
     let layout = crate::traits::allocatable::Layout {
         size: head.len().checked_add(1).unwrap(),

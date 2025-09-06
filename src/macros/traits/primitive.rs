@@ -1,11 +1,44 @@
+#[macro_use]
+pub mod r#bool;
+
+#[macro_use]
+pub mod r#char;
+
+#[macro_use]
+pub mod numeric;
+
+#[macro_use]
+pub mod option;
+
+#[macro_use]
+pub mod pointer;
+
+#[macro_use]
+pub mod primitive;
+
+#[macro_use]
+pub mod slice;
+
+#[macro_use]
+pub mod tuple;
+
+#[rustfmt::skip]
 #[macro_export]
-macro_rules! trait_implement_primitive {
-    ($tv:expr, $($t:ty),*) => {
-        $(
-            impl $crate::traits::Primitive<crate::Origin,crate::Origin> for $t {
-                const IS_PRIMITIVE: bool = $tv;
-            }
-        )*
+macro_rules! trait_implement_primitives {
+    ($($t:ty),*) => {
+        $crate::trait_implement_primitive!(
+            true, (), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize
+        );
+
+        $crate::trait_implement_primitive_bool_bytes!();
+        $crate::trait_implement_primitive_char_bytes!();
+        $crate::trait_implement_primitive_unit_bytes!();
+        $crate::trait_implement_primitive_numeric_bytes!(
+            f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize
+        );
+
+        $crate::trait_implement_primitive_option_bytes!((), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
+        $crate::trait_implement_primitive_pointer_bytes!((), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
+        $crate::trait_implement_primitive_slice_bytes!((), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
     };
 }
-pub use trait_implement_primitive;
