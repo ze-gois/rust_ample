@@ -1,18 +1,40 @@
 #[macro_export]
 macro_rules! r#struct {
-    ($(#[$($struct_doc:meta),*])* $vis:vis $struct_identifier:ident { $($(#[$field_doc:meta])* $field_visibility:vis $field_identifier:ident: $field_type:ty),*$(,)?}) => {
-        // #[repr(C,packed)]
-        // #[derive(Debug, Clone, Copy)]
-        #[derive(Debug)]
-        $(#[$($struct_doc),*])*
-        $vis struct $struct_identifier {
+    (
+        $(#[$($struct_doc:meta),*])*
+        $struct_vis:vis struct $struct_identifier:ident
+        $(<
+            $($struct_generics:tt),*
+        >)?
+        $(where
+            $($where_alias:ty : $($where_boundary:tt)::* $(<$($($where_boundary_genericsg:tt)::*),*>)?),*
+        )? $(,)?
+        {
             $(
-                $(#[$field_doc])*
-                $field_visibility $field_identifier: $field_type
+                $(#[$($field_doc:meta),*])*
+                $field_vis:vis $field_identifier:ident : $field_type:ty
+            ),* $(,)?
+        }
+    ) => {
+        $(#[$($struct_doc),*])*
+        $struct_vis struct $struct_identifier
+        $(<
+            $($struct_generics),*
+        >)?
+        $(where
+            $($where_alias : $($where_boundary)::*  ),*
+        )?
+        {
+            $(
+                $(#[$($field_doc),*])*
+                $field_vis $field_identifier : $field_type
             ),*
         }
 
-        impl $crate::traits::Bytes<crate::Origin,crate::Origin> for $struct_identifier {
+        impl$(<$($struct_generics),*>)? $crate::traits::Bytes<crate::Origin,crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
+        $(where
+            $($where_alias : $($where_boundary)::* $(<$($($where_boundary_genericsg)::*),*>)?),*
+        )?{
             const BYTES_SIZE : usize = $(<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE +)* 0;
 
             fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
