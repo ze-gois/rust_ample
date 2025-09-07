@@ -6,6 +6,7 @@ macro_rules! tuple {
         impl $crate::traits::Bytes<crate::Origin,crate::Origin> for $tuple_identifier {
 
             const BYTES_SIZE : usize = $(<$ordinal_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE + )* 0;
+            type ItemType = ();
 
             fn to_bytes(&self, endianness: bool) -> [u8; <$tuple_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE] {
                 let mut b = [0u8; <$tuple_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE];

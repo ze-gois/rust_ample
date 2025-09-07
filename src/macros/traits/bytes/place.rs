@@ -29,16 +29,30 @@ macro_rules! trait_place_bytes {
                 self.to_bytes(false)
             }
 
-            fn from_bytes(bytes: [u8; Self::BYTES_SIZE], endianness: bool) -> Self;
-            fn from_le_bytes(bytes: [u8; Self::BYTES_SIZE]) -> Self
+            fn from_bytes(
+                bytes: [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE],
+                endianness: bool,
+            ) -> Self
             where
                 Self: Sized,
+                [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]:;
+
+            fn from_le_bytes(
+                bytes: [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE],
+            ) -> Self
+            where
+                Self: Sized,
+                [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]:,
             {
                 Self::from_bytes(bytes, true)
             }
-            fn from_be_bytes(bytes: [u8; Self::BYTES_SIZE]) -> Self
+
+            fn from_be_bytes(
+                bytes: [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE],
+            ) -> Self
             where
                 Self: Sized,
+                [u8; <Self as $crate::traits::Bytes<Observer, Reference>>::BYTES_SIZE]:,
             {
                 Self::from_bytes(bytes, false)
             }

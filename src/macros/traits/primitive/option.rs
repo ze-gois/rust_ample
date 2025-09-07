@@ -4,6 +4,7 @@ macro_rules! trait_implement_primitive_option_bytes {
         $(
             impl $crate::traits::Bytes<crate::Origin,crate::Origin> for Option<$($t)::*> {
                 const BYTES_SIZE: usize = core::mem::size_of::<u8>() + <$($t)::* as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+
                 fn from_bytes(bytes: [u8; <Option<$($t)::*> as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
                     let mut option_bytes = [0u8; <u8 as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE];
                     let mut o = 0;

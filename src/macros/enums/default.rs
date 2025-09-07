@@ -17,6 +17,11 @@ macro_rules! r#enum {
 
         impl $crate::traits::Bytes<crate::Origin,crate::Origin> for $enum_identifier {
             const BYTES_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE),*);
+            const ITEM_COUNT: usize = 0;
+            const ITEM_SIZE: usize = <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+            const ITEMS_SIZE: usize = <Self as $crate::traits::Bytes<crate::Origin,crate::Origin>>::ITEM_SIZE *
+                                      <Self as $crate::traits::Bytes<crate::Origin,crate::Origin>>::ITEM_COUNT;
+
             fn to_bytes(&self, endianness: bool) -> [u8;Self::BYTES_SIZE] {
                 let mut bytes = [0u8;Self::BYTES_SIZE];
 

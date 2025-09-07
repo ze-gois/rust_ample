@@ -3,12 +3,14 @@ macro_rules! trait_implement_primitive_unit_bytes {
     () => {
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for () {
             const BYTES_SIZE: usize = core::mem::size_of::<()>();
+
             fn from_bytes(
                 _bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE],
                 _endianness: bool,
             ) -> Self {
                 ()
             }
+
             fn to_bytes(
                 &self,
                 _endianness: bool,
