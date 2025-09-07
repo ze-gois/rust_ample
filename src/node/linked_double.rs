@@ -1,21 +1,20 @@
 pub mod queue;
 
 use crate::traits::Allocatable;
-use crate::traits::Loading;
 
 #[derive(Debug, Clone, Copy)]
-pub struct DoubleLinkedNode<Load>
+pub struct DoubleLinkedNode<Load, Observer, Reference>
 where
-    Load: Allocatable,
+    Load: Allocatable<Observer, Reference>,
 {
     pub value: Load,
-    pub ancestor: *const DoubleLinkedNode<Load>,
-    pub sucessor: *const DoubleLinkedNode<Load>,
+    pub ancestor: *const DoubleLinkedNode<Load, Observer, Reference>,
+    pub sucessor: *const DoubleLinkedNode<Load, Observer, Reference>,
 }
 
-impl<Load> DoubleLinkedNode<Load>
+impl<Load> DoubleLinkedNode<Load, crate::Origin, crate::Origin>
 where
-    Load: Allocatable,
+    Load: Allocatable<crate::Origin, crate::Origin>,
 {
     pub fn set_sucessor(&mut self, node: *const Self) {
         self.sucessor = node;
@@ -26,12 +25,12 @@ where
     }
 }
 
-impl<Load: Allocatable> Loading<Load> for DoubleLinkedNode<Load> {
-    fn new(value: Load) -> Self {
-        Self {
-            value,
-            ancestor: core::ptr::null(),
-            sucessor: core::ptr::null(),
-        }
-    }
-}
+// impl<Load: Allocatable> Loading<Load> for DoubleLinkedNode<Load> {
+//     fn new(value: Load) -> Self {
+//         Self {
+//             value,
+//             ancestor: core::ptr::null(),
+//             sucessor: core::ptr::null(),
+//         }
+//     }
+// }

@@ -18,7 +18,7 @@ macro_rules! trait_implement_primitive_array_bytes {
                     let item_size = <$($t)::* as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
 
                     for (i, item) in self.iter().enumerate() {
-                        let item_bytes = <$($t)::*>::to_bytes(
+                        let item_bytes = <$($t)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(
                             item,
                             endianness
                         );
@@ -32,13 +32,13 @@ macro_rules! trait_implement_primitive_array_bytes {
                 where
                     [(); <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE]:,
                 {
-                    const NN: usize = <$($t)::*>::BYTES_SIZE;
-                    let defaulta = <$($t)::*>::from_bytes([0u8; NN], endianness);
+                    const NN: usize = <$($t)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                    let defaulta = <$($t)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes([0u8; NN], endianness);
                     let mut arr: [$($t)::*; N] = [defaulta; N];
                     for (i, chunk) in bytes.chunks_exact(<$($t)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE).enumerate() {
                         let mut buf = [0u8; <$($t)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                         buf.copy_from_slice(chunk);
-                        arr[i] = <$($t)::*>::from_bytes(buf, endianness);
+                        arr[i] = <$($t)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(buf, endianness);
                     }
                     arr
 

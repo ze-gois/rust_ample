@@ -39,7 +39,7 @@ macro_rules! trait_implement_primitives {
 
         $crate::trait_implement_primitive_option_bytes!((), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
         $crate::trait_implement_primitive_pointer_bytes!((), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
-        // $crate::trait_implement_primitive_array_bytes!((), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
+        $crate::trait_implement_primitive_array_bytes!((), bool, char, f32, f64, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
         // impl<T: $crate::traits::Bytes<crate::Origin,crate::Origin>> Clone for T {
         //     fn clone(&self) -> Self {
         //         <T>::from_bytes(self.to_bytes(true),true)
