@@ -7,7 +7,7 @@ macro_rules! r#struct {
             $($struct_generics:tt),*
         >)?
         $(where
-            $($where_alias:ty : $($where_boundary:tt)::* $(<$($($where_boundary_genericsg:tt)::*),*>)?),*
+            $($where_alias:ty : $($where_boundary:tt)::* $(<$($($where_boundary_generics:tt)::*),*>)?),*
         )? $(,)?
         {
             $(
@@ -31,9 +31,33 @@ macro_rules! r#struct {
             ),*
         }
 
+        impl$(<$($struct_generics),*>)? $crate::traits::Bytes<crate::Origin,crate::Origin> for *const $struct_identifier $(<$($struct_generics),*>)?
+        $(where
+            $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+        )?{
+            const BYTES_SIZE: usize = core::mem::size_of::<Self>();
+
+            fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
+                if endianness {
+                    <usize as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_le_bytes(&(*self as usize))
+                } else {
+                    <usize as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_be_bytes(&(*self as usize))
+                }
+            }
+
+            fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
+                if endianness {
+                    <usize as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_le_bytes(bytes) as Self
+                } else {
+                    <usize as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_be_bytes(bytes) as Self
+                }
+            }
+
+        }
+
         impl$(<$($struct_generics),*>)? $crate::traits::Bytes<crate::Origin,crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
         $(where
-            $($where_alias : $($where_boundary)::* $(<$($($where_boundary_genericsg)::*),*>)?),*
+            $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
         )?{
             const BYTES_SIZE : usize = $(<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE +)* 0;
 
