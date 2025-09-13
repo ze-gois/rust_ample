@@ -3,16 +3,17 @@ use crate::traits::Bytes;
 use core::marker::PhantomData;
 
 #[derive(Debug)]
-pub struct LinkedNode<Origin, T>
+pub struct LinkedNode<Origin, AllocatorOrigin, T>
 where
     T: Bytes<Origin>,
 {
     pub value: T,
     pub next: Option<*mut Self>,
     _phantom_o: PhantomData<Origin>,
+    _phantom_a: PhantomData<AllocatorOrigin>,
 }
 
-impl<Origin, T> LinkedNode<Origin, T>
+impl<Origin, AllocatorOrigin, T> LinkedNode<Origin, AllocatorOrigin, T>
 where
     T: Bytes<Origin>,
 {
@@ -21,13 +22,14 @@ where
             value,
             next: None,
             _phantom_o: PhantomData,
+            _phantom_a: PhantomData,
         }
     }
 
     /// Create a node with the given value and allocate it using the provided allocator type
     pub fn allocate_node<A>(value: T) -> *mut Self
     where
-        A: Allocatable<Origin>,
+        A: Allocatable<AllocatorOrigin>,
     {
         // Use the A's allocate method but cast the result to our node type
         let ptr = unsafe {
@@ -49,7 +51,7 @@ where
     /// Deallocate a node using the provided allocator type
     pub fn deallocate_node<A>(ptr: *mut Self) -> bool
     where
-        A: Allocatable<Origin>,
+        A: Allocatable<AllocatorOrigin>,
     {
         // Cast the pointer to the allocator's expected type
         A::deallocate(ptr as *mut A, 1)
@@ -81,7 +83,7 @@ where
     }
 }
 
-impl<Origin, T> Clone for LinkedNode<Origin, T>
+impl<Origin, AllocatorOrigin, T> Clone for LinkedNode<Origin, AllocatorOrigin, T>
 where
     T: Bytes<Origin> + Clone,
 {
@@ -90,6 +92,7 @@ where
             value: self.value.clone(),
             next: self.next,
             _phantom_o: PhantomData,
+            _phantom_a: PhantomData,
         }
     }
 }

@@ -5,22 +5,23 @@ use crate::traits::Bytes;
 use core::marker::PhantomData;
 
 /// A singly linked list implementation that can work with different allocation strategies
-pub struct LinkedList<Origin, T, A>
+pub struct LinkedList<BytesOrigin, AllocatorOrigin, T, A>
 where
-    T: Bytes<Origin>,
-    A: Allocatable<Origin>,
+    T: Bytes<BytesOrigin>,
+    A: Allocatable<AllocatorOrigin>,
 {
-    former: Option<*mut LinkedNode<Origin, T>>,
-    latter: Option<*mut LinkedNode<Origin, T>>,
+    former: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, T>>,
+    latter: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, T>>,
     numerosity: usize,
-    _phantom_o: PhantomData<Origin>,
+    _phantom_o: PhantomData<BytesOrigin>,
+    _phantom_p: PhantomData<AllocatorOrigin>,
     _phantom_a: PhantomData<A>,
 }
 
-impl<Origin, T, A> LinkedList<Origin, T, A>
+impl<BytesOrigin, AllocatorOrigin, T, A> LinkedList<BytesOrigin, AllocatorOrigin, T, A>
 where
-    T: Bytes<Origin>,
-    A: Allocatable<Origin>,
+    T: Bytes<BytesOrigin>,
+    A: Allocatable<AllocatorOrigin>,
 {
     /// Create a new empty linked list
     pub fn new() -> Self {
@@ -29,6 +30,7 @@ where
             latter: None,
             numerosity: 0,
             _phantom_o: PhantomData,
+            _phantom_p: PhantomData,
             _phantom_a: PhantomData,
         }
     }
@@ -114,19 +116,20 @@ where
     }
 
     /// Get an iterator over the values in the list
-    pub fn iter(&self) -> Iter<Origin, T> {
+    pub fn iter(&self) -> Iter<BytesOrigin, AllocatorOrigin, T> {
         Iter {
             current: self.former,
             _phantom_o: PhantomData,
+            _phantom_p: PhantomData,
         }
     }
 }
 
 // Implement Drop to ensure memory is freed when the list is dropped
-impl<Origin, T, A> Drop for LinkedList<Origin, T, A>
+impl<Origin, AllocatorOrigin, T, A> Drop for LinkedList<Origin, AllocatorOrigin, T, A>
 where
     T: Bytes<Origin>,
-    A: Allocatable<Origin>,
+    A: Allocatable<AllocatorOrigin>,
 {
     fn drop(&mut self) {
         self.clear();
@@ -134,15 +137,16 @@ where
 }
 
 // Iterator for LinkedList
-pub struct Iter<'a, Origin: 'a, T: 'a>
+pub struct Iter<'a, Origin: 'a, AllocatorOrigin: 'a, T: 'a>
 where
     T: Bytes<Origin>,
 {
-    current: Option<*mut LinkedNode<Origin, T>>,
+    current: Option<*mut LinkedNode<Origin, AllocatorOrigin, T>>,
     _phantom_o: PhantomData<&'a Origin>,
+    _phantom_p: PhantomData<&'a AllocatorOrigin>,
 }
 
-impl<'a, Origin: 'a, T: 'a> Iterator for Iter<'a, Origin, T>
+impl<'a, Origin: 'a, AllocatorOrigin: 'a, T: 'a> Iterator for Iter<'a, Origin, AllocatorOrigin, T>
 where
     T: Bytes<Origin>,
 {
