@@ -1,20 +1,7 @@
-#[macro_use]
-pub mod latent;
-
-#[macro_use]
 pub mod enums;
-
-#[macro_use]
-pub mod structs;
-
-#[macro_use]
-pub mod traits;
-
-#[macro_use]
-pub mod tuples;
-
-#[macro_use]
+pub mod latent;
+pub mod primitive;
 pub mod string;
-
-pub use enums::default::r#enum;
-pub use structs::default::r#struct;
+pub mod structs;
+pub mod traits;
+pub mod tuples;

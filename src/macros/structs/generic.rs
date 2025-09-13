@@ -12,22 +12,22 @@ macro_rules! r#generic_struct {
             ),*
         }
 
-        impl $crate::traits::Bytes<crate::Origin,crate::Origin> for $struct_identifier {
-            const BYTES_SIZE : usize = $(<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE +)* 0;
+        impl $crate::traits::Bytes<crate::Origin> for $struct_identifier {
+            const BYTES_SIZE : usize = $(<$field_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE +)* 0;
 
             fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
                 let mut b = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                 let mut o = 0;
                 // let _ = endianness;
                 $(
-                    b[o..(o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)].copy_from_slice(
+                    b[o..(o+<$field_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE)].copy_from_slice(
                         &if endianness {
-                            <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_le_bytes(&self.$field_identifier)
+                            <$field_type as $crate::traits::Bytes<crate::Origin>>::to_le_bytes(&self.$field_identifier)
                         } else {
-                            <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_be_bytes(&self.$field_identifier)
+                            <$field_type as $crate::traits::Bytes<crate::Origin>>::to_be_bytes(&self.$field_identifier)
                         }
                     );
-                    o = o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    o = o + <$field_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
                 )*
                 b
             }
@@ -37,14 +37,14 @@ macro_rules! r#generic_struct {
                 let _ = bytes;
                 let _ = endianness;
                 $(
-                    let mut field_bytes = [0u8; <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE];
-                    field_bytes.copy_from_slice(&bytes[_o..(_o+<$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE)]);
+                    let mut field_bytes = [0u8; <$field_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE];
+                    field_bytes.copy_from_slice(&bytes[_o..(_o+<$field_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE)]);
                     let $field_identifier = if endianness {
-                        <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_le_bytes(field_bytes)
+                        <$field_type as $crate::traits::Bytes<crate::Origin>>::from_le_bytes(field_bytes)
                     } else {
-                        <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_be_bytes(field_bytes)
+                        <$field_type as $crate::traits::Bytes<crate::Origin>>::from_be_bytes(field_bytes)
                     };
-                    _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
                 )*
                 Self {
                     $($field_identifier,)*
@@ -53,30 +53,30 @@ macro_rules! r#generic_struct {
         }
 
         // type u8 = u8;
-        impl $crate::traits::Bytes<crate::Origin,crate::Origin> for Option<$struct_identifier> {
-            const BYTES_SIZE: usize = <u8 as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE + <$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+        impl $crate::traits::Bytes<crate::Origin> for Option<$struct_identifier> {
+            const BYTES_SIZE: usize = <u8 as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE + <$struct_identifier as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
 
             fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
-                let mut option_bytes = [0u8; <u8 as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE];
+                let mut option_bytes = [0u8; <u8 as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE];
                 let mut o = 0;
-                let mut l = <u8 as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                let mut l = <u8 as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
                 option_bytes.copy_from_slice(&bytes[o..l]);
                 let option = if endianness {
-                    <u8 as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_le_bytes(option_bytes)
+                    <u8 as $crate::traits::Bytes<crate::Origin>>::from_le_bytes(option_bytes)
                 } else {
-                    <u8 as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_be_bytes(option_bytes)
+                    <u8 as $crate::traits::Bytes<crate::Origin>>::from_be_bytes(option_bytes)
                 };
                 if option == 0 {
                     None
                 } else {
                     o = l;
-                    l = l + <$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
-                    let mut value_bytes = [0u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE];
+                    l = l + <$struct_identifier as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
+                    let mut value_bytes = [0u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE];
                     value_bytes.copy_from_slice(&bytes[o..l]);
                     if endianness {
-                        Some(<$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_le_bytes(value_bytes))
+                        Some(<$struct_identifier as $crate::traits::Bytes<crate::Origin>>::from_le_bytes(value_bytes))
                     } else {
-                        Some(<$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::from_be_bytes(value_bytes))
+                        Some(<$struct_identifier as $crate::traits::Bytes<crate::Origin>>::from_be_bytes(value_bytes))
                     }
                 }
             }
@@ -85,14 +85,14 @@ macro_rules! r#generic_struct {
                 let mut bytes = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                 if let Some(v) = self {
                     let mut o = 0;
-                    let mut l = <u8 as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    let mut l = <u8 as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
                     bytes[o..l].copy_from_slice(&(1 as u8).to_le_bytes());
                     o = l;
-                    l = l + <$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::BYTES_SIZE;
+                    l = l + <$struct_identifier as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
                     if endianness {
-                        bytes[o..l].copy_from_slice(&<$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_le_bytes(v));
+                        bytes[o..l].copy_from_slice(&<$struct_identifier as $crate::traits::Bytes<crate::Origin>>::to_le_bytes(v));
                     } else {
-                        bytes[o..l].copy_from_slice(&<$struct_identifier as $crate::traits::Bytes<crate::Origin,crate::Origin>>::to_be_bytes(v));
+                        bytes[o..l].copy_from_slice(&<$struct_identifier as $crate::traits::Bytes<crate::Origin>>::to_be_bytes(v));
                     }
                     bytes
                 } else {

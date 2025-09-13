@@ -1,21 +1,15 @@
-// pub mod heap;
-pub mod layout;
-// pub mod stack;
+pub trait Allocatable<Origin> {
+    /// Allocates memory according to the provided layout
+    fn allocate(numerosity: usize) -> *mut Self;
 
-pub use layout::Layout;
+    /// Deallocates memory at the given pointer with the specified layout
+    fn deallocate(ptr: *mut Self, numerosity: usize) -> bool;
 
-use crate::traits::Bytes;
-
-// crate::trait_place_allocatable!();
-
-pub trait Allocatable<Reference, Observed>: Bytes<Reference, Observed> {
-    fn allocate(layout: Layout) -> *const Self;
-    fn deallocate(ptr: *const Self, layout: Layout) -> bool;
-
-    fn allocate_zeroed(layout: Layout) -> *const Self {
-        let ptr = Self::allocate(layout);
+    /// Allocates zeroed memory according to the provided layout
+    fn allocate_zeroed(numerosity: usize) -> *mut Self {
+        let ptr = Self::allocate(numerosity);
         unsafe {
-            core::ptr::write_bytes(ptr as *mut u8, 0, layout.size);
+            core::ptr::write_bytes(ptr as *mut u8, 0, numerosity);
         }
         ptr
     }
