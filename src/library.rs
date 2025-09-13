@@ -11,6 +11,7 @@ pub struct Origin {}
 pub mod list;
 pub mod macros;
 pub mod node;
+pub mod string;
 pub mod traits;
 
 trait_implement_primitives!();

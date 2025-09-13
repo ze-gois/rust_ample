@@ -5,7 +5,7 @@ macro_rules! expressions_lowerbound {
     // caso recursivo: pelo menos dois
     ($x:expr, $($rest:expr),+) => {
         {
-            let y = expressions_lowerbound!($($rest),+);
+            let y = $crate::expressions_lowerbound!($($rest),+);
             if $x > y { y } else { $x }
         }
     };
