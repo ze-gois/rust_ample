@@ -1,16 +1,29 @@
 #[macro_export]
 macro_rules! r#enum {
-    ($(#[$($struct_doc:meta),*])* $enum_vis:vis $enum_identifier:ident, $enum_discriminant_type:ty, [$([$variant_discriminant:expr,$variant_identifier:ident,$($variant_type:tt)::*]),* $(,)? ]) => {
-        // #[derive(Debug, Clone, Copy)]
+    (
+        $enum_discriminant_type:ty;
+        $(#[$($struct_doc:meta),*])*
+        $enum_vis:vis enum $enum_identifier:ident {
+            $(
+                $variant_identifier:ident($($variant_type:tt)::*) = $variant_discriminant:expr
+            ),* $(,)?
+        }
+    ) => {
+
         $(#[$($struct_doc),*])*
+        #[repr(u64)]
         $enum_vis enum $enum_identifier {
-            $($variant_identifier($($variant_type)::*)),*
+            $(
+                $variant_identifier($($variant_type)::*) = $variant_discriminant
+            ),*
         }
 
         impl $enum_identifier {
             pub fn discriminant(&self) -> $enum_discriminant_type {
                 match self {
-                    $($enum_identifier::$variant_identifier(_) => $variant_discriminant),*
+                    $(
+                        $enum_identifier::$variant_identifier(_) => $variant_discriminant
+                    ),*
                 }
             }
         }
@@ -29,19 +42,11 @@ macro_rules! r#enum {
 
                             let mut o = 0;
                             bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE)].copy_from_slice(
-                                &if endianness {
-                                    <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::to_le_bytes(&discriminant)
-                                } else {
-                                    <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::to_be_bytes(&discriminant)
-                                }
+                                &<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::to_bytes(&discriminant,endianness)
                             );
                             o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
                             bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE)].copy_from_slice(
-                                &if endianness {
-                                    <$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::to_le_bytes(payload)
-                                } else {
-                                    <$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::to_be_bytes(payload)
-                                }
+                                &<$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::to_bytes(payload,endianness)
                             );
                             bytes
                         }
@@ -53,11 +58,7 @@ macro_rules! r#enum {
                 let mut o = 0;
                 let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE];
                 discriminant_bytes.copy_from_slice(&bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE)]);
-                let discriminant = if endianness {
-                    <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::from_le_bytes(discriminant_bytes)
-                } else {
-                    <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::from_be_bytes(discriminant_bytes)
-                };
+                let discriminant = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::from_bytes(discriminant_bytes, endianness);
                 o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE;
                 match discriminant {
                     $(
@@ -65,11 +66,7 @@ macro_rules! r#enum {
                             Self::$variant_identifier({
                                 let mut payload = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE];
                                 payload.copy_from_slice(&bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::BYTES_SIZE)]);
-                                if endianness {
-                                    <$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::from_le_bytes(payload)
-                                } else {
-                                    <$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::from_be_bytes(payload)
-                                }
+                                <$($variant_type)::* as $crate::traits::Bytes<crate::Origin>>::from_bytes(payload,endianness)
                             })
                         },
                     )*

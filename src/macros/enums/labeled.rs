@@ -38,7 +38,7 @@
 macro_rules! enum_labeled {
     (
         $(#[$($struct_doc:meta),*])*
-        $enum_vis:vis $enum_identifier:ident,
+        $enum_vis:vis enum $enum_identifier:ident,
         $enum_discriminant_type:ty,
         $enum_label:expr,
         [
@@ -56,13 +56,14 @@ macro_rules! enum_labeled {
     ) => {
 
         $crate::r#enum!(
+            $enum_discriminant_type;
             $(#[$($struct_doc),*])*
-            $enum_vis $enum_identifier,
-            $enum_discriminant_type, [
-            $(
-                [$variant_discriminant, $variant_identifier, $variant_type]
-            ),*
-        ]);
+            $enum_vis enum $enum_identifier {
+                $(
+                    $variant_identifier($variant_type) = $variant_discriminant
+                ),*
+            }
+        );
 
         pub mod constants {
             $(

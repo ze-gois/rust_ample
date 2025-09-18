@@ -5,6 +5,7 @@ use crate::traits::Bytes;
 use core::marker::PhantomData;
 
 /// A singly linked list implementation that can work with different allocation strategies
+#[derive(Debug)]
 pub struct LinkedList<BytesOrigin, AllocatorOrigin, T, A>
 where
     T: Bytes<BytesOrigin>,
@@ -116,7 +117,7 @@ where
     }
 
     /// Get an iterator over the values in the list
-    pub fn iter(&self) -> Iter<BytesOrigin, AllocatorOrigin, T> {
+    pub fn iter(&self) -> Iter<'_, BytesOrigin, AllocatorOrigin, T> {
         Iter {
             current: self.former,
             _phantom_o: PhantomData,

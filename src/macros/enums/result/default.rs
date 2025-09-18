@@ -19,12 +19,19 @@ macro_rules! result {
                     ]
                 ),* $(,)?
             ]
-        );*
+        );* $(;)?
     ) => {
         $(
-            $crate::r#enum!(#[derive(Debug, Clone, Copy)] $(#[$($result_doc),*])* pub $result_identifier, $result_discriminant_type,[
-                $([$variant_discriminant, $variant_identifier, $($variant_type)::*],)*
-            ]);
+            $crate::r#enum!(
+                $result_discriminant_type;
+                #[derive(Debug, Clone, Copy)]
+                $(#[$($result_doc),*])*
+                pub enum $result_identifier {
+                    $(
+                        $variant_identifier($($variant_type)::*) = $variant_discriminant
+                    ),*
+                }
+            );
         )*
 
         pub mod constants {
