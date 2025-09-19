@@ -4,6 +4,9 @@ pub mod place;
 #[macro_use]
 pub mod implement;
 
+#[macro_use]
+pub mod blanket;
+
 // #[macro_export]
 // macro_rules! trait_place_bytes {
 //     () => {

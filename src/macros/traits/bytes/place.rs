@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! trait_place_bytes {
+macro_rules! trait_bytes_place {
     () => {
         pub trait Bytes<Origin> {
             const BYTES_SIZE: usize;

@@ -1,1 +1,1 @@
-crate::trait_place_bytes!();
+crate::trait_bytes_place!();
