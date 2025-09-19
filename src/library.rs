@@ -8,11 +8,15 @@
 
 pub struct Origin {}
 
-pub mod list;
+#[macro_use]
 pub mod macros;
+pub mod list;
 pub mod node;
+pub mod result;
 pub mod string;
 pub mod traits;
 pub use string::String;
+
+pub use result::{Error, Ok, Result};
 
 trait_implement_primitives!();

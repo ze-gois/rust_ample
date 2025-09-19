@@ -1,5 +1,5 @@
-#[macro_export]
 #[rustfmt::skip]
+#[macro_export]
 macro_rules! result {
     (
         $(
@@ -47,7 +47,7 @@ macro_rules! result {
         }
 
         $(
-            impl ample::traits::enums::Result for $result_identifier {
+            impl $crate::traits::enums::Result for $result_identifier {
                 type ResultType = $result_discriminant_type;
 
                 // fn from_no(no: Self::ResultType) -> Self {

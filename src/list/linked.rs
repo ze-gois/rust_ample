@@ -1,6 +1,7 @@
 use crate::node::LinkedNode;
 use crate::traits::Allocatable;
 use crate::traits::Bytes;
+use crate::traits::allocatable::AllocatableResult;
 // use crate::traits::allocatable::HeapAllocatable;
 use core::marker::PhantomData;
 
@@ -54,8 +55,11 @@ where
     }
 
     /// Add an element to the front of the list
-    pub fn push_front(&mut self, value: B) {
-        let new_node = LinkedNode::allocate_node::<A>(value);
+    pub fn push_front(&mut self, value: B) -> core::result::Result<bool, A::Error> {
+        let new_node = LinkedNode::allocate_node::<A>(value)?.as_ptr()
+            as *mut LinkedNode<BytesOrigin, AllocatorOrigin, B>;
+
+        // <A::Ok as crate::traits::allocatable::Pointer>::from_raw(new_node);
 
         unsafe {
             if let Some(old_former) = self.former {
@@ -69,11 +73,13 @@ where
         }
 
         self.numerosity += 1;
+        core::result::Result::Ok(true)
     }
 
     /// Add an element to the back of the list
-    pub fn push_back(&mut self, value: B) {
-        let new_node = LinkedNode::allocate_node::<A>(value);
+    pub fn push_back(&mut self, value: B) -> core::result::Result<bool, A::Error> {
+        let new_node = LinkedNode::allocate_node::<A>(value)?.as_ptr()
+            as *mut LinkedNode<BytesOrigin, AllocatorOrigin, B>;
 
         unsafe {
             if let Some(old_latter) = self.latter {
@@ -87,25 +93,24 @@ where
         }
 
         self.numerosity += 1;
+        core::result::Result::Ok(true)
     }
 
     /// Remove and return the element at the front of the list
-    pub fn pop_front(&mut self) -> Option<B> {
-        self.former.map(|former_ptr| unsafe {
-            let former = &*former_ptr;
-            let value = core::ptr::read(former.value());
+    pub fn pop_front(&mut self) -> core::result::Result<Option<B>, A::Error> {
+        let former = self.former.unwrap();
 
-            self.former = former.next;
+        self.former = unsafe { (*former).next };
 
-            if self.former.is_none() {
-                self.latter = None;
-            }
+        if self.former.is_none() {
+            self.latter = None;
+        }
 
-            LinkedNode::deallocate_node::<A>(former_ptr);
-            self.numerosity -= 1;
+        self.numerosity -= 1;
 
-            value
-        })
+        LinkedNode::deallocate_node::<A>(former)?;
+
+        core::result::Result::Ok(None)
     }
 
     /// Get a reference to the first element
@@ -119,8 +124,9 @@ where
     }
 
     /// Clear all nodes and deallocate memory
-    pub fn clear(&mut self) {
-        while self.pop_front().is_some() {}
+    pub fn clear(&mut self) -> core::result::Result<(), A::Error> {
+        while self.pop_front()?.is_some() {}
+        core::result::Result::Ok(())
     }
 
     /// Get an iterator over the values in the list
@@ -140,7 +146,7 @@ where
     A: Allocatable<AllocatorOrigin>,
 {
     fn drop(&mut self) {
-        self.clear();
+        let _ = self.clear();
     }
 }
 

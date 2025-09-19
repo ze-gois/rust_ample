@@ -1,4 +1,5 @@
 use crate::traits::Allocatable;
+use crate::traits::AllocatableResult;
 use crate::traits::Bytes;
 use core::marker::PhantomData;
 
@@ -27,17 +28,17 @@ where
     }
 
     /// Create a node with the given value and allocate it using the provided allocator type
-    pub fn allocate_node<A>(value: T) -> *mut Self
+    pub fn allocate_node<A>(value: T) -> core::result::Result<A::Ok, A::Error>
     where
         A: Allocatable<AllocatorOrigin>,
     {
         // Use the A's allocate method but cast the result to our node type
         let ptr = unsafe {
             // Allocate raw memory
-            let raw_ptr = A::allocate(1);
+            let raw_ptr = A::allocate(1)?;
 
             // Cast to our node type
-            let node_ptr = raw_ptr as *mut Self;
+            let node_ptr = raw_ptr.as_ptr() as *mut Self;
 
             // Initialize the node
             *node_ptr = Self::new(value);
@@ -45,11 +46,11 @@ where
             node_ptr
         };
 
-        ptr
+        core::result::Result::Ok(A::Ok::from_raw(ptr as *mut u8))
     }
 
     /// Deallocate a node using the provided allocator type
-    pub fn deallocate_node<A>(ptr: *mut Self) -> bool
+    pub fn deallocate_node<A>(ptr: *mut Self) -> core::result::Result<A::Ok, A::Error>
     where
         A: Allocatable<AllocatorOrigin>,
     {
