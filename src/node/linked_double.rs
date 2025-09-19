@@ -41,20 +41,22 @@ use crate::traits::Bytes;
 use core::marker::PhantomData;
 
 #[derive(Debug)]
-pub struct DoubleLinkedNode<Origin, AllocatorOrigin, T>
+pub struct DoubleLinkedNode<Origin, Destination, AllocatorOrigin, T>
 where
-    T: Bytes<Origin>,
+    T: Bytes<Origin, Destination>,
 {
     pub value: T,
     pub ancestor: Option<*mut Self>,
     pub sucessor: Option<*mut Self>,
     _phantom_o: PhantomData<Origin>,
+    _phantom_d: PhantomData<Destination>,
     _phantom_a: PhantomData<AllocatorOrigin>,
 }
 
-impl<Origin, AllocatorOrigin, T> DoubleLinkedNode<Origin, AllocatorOrigin, T>
+impl<Origin, Destination, AllocatorOrigin, T>
+    DoubleLinkedNode<Origin, Destination, AllocatorOrigin, T>
 where
-    T: Bytes<Origin>,
+    T: Bytes<Origin, Destination>,
 {
     pub fn new(value: T) -> Self {
         Self {
@@ -62,6 +64,7 @@ where
             ancestor: None,
             sucessor: None,
             _phantom_o: PhantomData,
+            _phantom_d: PhantomData,
             _phantom_a: PhantomData,
         }
     }
@@ -138,9 +141,10 @@ where
     }
 }
 
-impl<Origin, AllocatorOrigin, T> Clone for DoubleLinkedNode<Origin, AllocatorOrigin, T>
+impl<Origin, Destination, AllocatorOrigin, T> Clone
+    for DoubleLinkedNode<Origin, Destination, AllocatorOrigin, T>
 where
-    T: Bytes<Origin> + Clone,
+    T: Bytes<Origin, Destination> + Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -148,6 +152,7 @@ where
             ancestor: self.ancestor,
             sucessor: self.sucessor,
             _phantom_o: PhantomData,
+            _phantom_d: PhantomData,
             _phantom_a: PhantomData,
         }
     }

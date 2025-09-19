@@ -4,25 +4,27 @@ use crate::traits::Bytes;
 use core::marker::PhantomData;
 
 #[derive(Debug)]
-pub struct LinkedNode<Origin, AllocatorOrigin, T>
+pub struct LinkedNode<Origin, Destination, AllocatorOrigin, T>
 where
-    T: Bytes<Origin>,
+    T: Bytes<Origin, Destination>,
 {
     pub value: T,
     pub next: Option<*mut Self>,
     _phantom_o: PhantomData<Origin>,
+    _phantom_d: PhantomData<Destination>,
     _phantom_a: PhantomData<AllocatorOrigin>,
 }
 
-impl<Origin, AllocatorOrigin, T> LinkedNode<Origin, AllocatorOrigin, T>
+impl<Origin, Destination, AllocatorOrigin, T> LinkedNode<Origin, Destination, AllocatorOrigin, T>
 where
-    T: Bytes<Origin>,
+    T: Bytes<Origin, Destination>,
 {
     pub fn new(value: T) -> Self {
         Self {
             value,
             next: None,
             _phantom_o: PhantomData,
+            _phantom_d: PhantomData,
             _phantom_a: PhantomData,
         }
     }
@@ -84,15 +86,17 @@ where
     }
 }
 
-impl<Origin, AllocatorOrigin, T> Clone for LinkedNode<Origin, AllocatorOrigin, T>
+impl<Origin, Destination, AllocatorOrigin, T> Clone
+    for LinkedNode<Origin, Destination, AllocatorOrigin, T>
 where
-    T: Bytes<Origin> + Clone,
+    T: Bytes<Origin, Destination> + Clone,
 {
     fn clone(&self) -> Self {
         Self {
             value: self.value.clone(),
             next: self.next,
             _phantom_o: PhantomData,
+            _phantom_d: PhantomData,
             _phantom_a: PhantomData,
         }
     }

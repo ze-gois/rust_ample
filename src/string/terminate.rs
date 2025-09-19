@@ -1,10 +1,10 @@
 use crate::traits::{Allocatable, AllocatableResult, Bytes};
 
-pub fn terminate<Origin, A: Allocatable<Origin>>(
+pub fn terminate<Origin, Destination, A: Allocatable<Origin>>(
     head: &str,
 ) -> core::result::Result<A::Ok, A::Error>
 where
-    u8: Bytes<Origin>,
+    u8: Bytes<Origin, Destination>,
 {
     let tailed = A::allocate_zeroed(head.len() * core::mem::size_of::<u8>() + 1)?;
     let tailed = tailed.as_ptr() as *mut u8;

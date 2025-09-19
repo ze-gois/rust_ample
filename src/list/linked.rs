@@ -7,23 +7,25 @@ use core::marker::PhantomData;
 
 /// A singly linked list implementation that can work with different allocation strategies
 #[derive(Debug)]
-pub struct LinkedList<BytesOrigin, AllocatorOrigin, B, A>
+pub struct LinkedList<BytesOrigin, BytesDestination, AllocatorOrigin, B, A>
 where
-    B: Bytes<BytesOrigin>,
+    B: Bytes<BytesOrigin, BytesDestination>,
     A: Allocatable<AllocatorOrigin>,
 {
     meta: Option<*mut B>,
-    former: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, B>>,
-    latter: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, B>>,
+    former: Option<*mut LinkedNode<BytesOrigin, BytesDestination, AllocatorOrigin, B>>,
+    latter: Option<*mut LinkedNode<BytesOrigin, BytesDestination, AllocatorOrigin, B>>,
     numerosity: usize,
     _phantom_o: PhantomData<BytesOrigin>,
+    _phantom_d: PhantomData<BytesDestination>,
     _phantom_p: PhantomData<AllocatorOrigin>,
     _phantom_a: PhantomData<A>,
 }
 
-impl<BytesOrigin, AllocatorOrigin, B, A> LinkedList<BytesOrigin, AllocatorOrigin, B, A>
+impl<BytesOrigin, BytesDestination, AllocatorOrigin, B, A>
+    LinkedList<BytesOrigin, BytesDestination, AllocatorOrigin, B, A>
 where
-    B: Bytes<BytesOrigin>,
+    B: Bytes<BytesOrigin, BytesDestination>,
     A: Allocatable<AllocatorOrigin>,
 {
     /// Create a new empty linked list
@@ -34,6 +36,7 @@ where
             latter: None,
             numerosity: 0,
             _phantom_o: PhantomData,
+            _phantom_d: PhantomData,
             _phantom_p: PhantomData,
             _phantom_a: PhantomData,
         }
@@ -57,7 +60,7 @@ where
     /// Add an element to the front of the list
     pub fn push_front(&mut self, value: B) -> core::result::Result<bool, A::Error> {
         let new_node = LinkedNode::allocate_node::<A>(value)?.as_ptr()
-            as *mut LinkedNode<BytesOrigin, AllocatorOrigin, B>;
+            as *mut LinkedNode<BytesOrigin, BytesDestination, AllocatorOrigin, B>;
 
         // <A::Ok as crate::traits::allocatable::Pointer>::from_raw(new_node);
 
@@ -79,7 +82,7 @@ where
     /// Add an element to the back of the list
     pub fn push_back(&mut self, value: B) -> core::result::Result<bool, A::Error> {
         let new_node = LinkedNode::allocate_node::<A>(value)?.as_ptr()
-            as *mut LinkedNode<BytesOrigin, AllocatorOrigin, B>;
+            as *mut LinkedNode<BytesOrigin, BytesDestination, AllocatorOrigin, B>;
 
         unsafe {
             if let Some(old_latter) = self.latter {
@@ -130,19 +133,21 @@ where
     }
 
     /// Get an iterator over the values in the list
-    pub fn iter(&self) -> Iter<'_, BytesOrigin, AllocatorOrigin, B> {
+    pub fn iter(&self) -> Iter<'_, BytesOrigin, BytesDestination, AllocatorOrigin, B> {
         Iter {
             current: self.former,
             _phantom_o: PhantomData,
+            _phantom_d: PhantomData,
             _phantom_p: PhantomData,
         }
     }
 }
 
 // Implement Drop to ensure memory is freed when the list is dropped
-impl<Origin, AllocatorOrigin, B, A> Drop for LinkedList<Origin, AllocatorOrigin, B, A>
+impl<Origin, Destination, AllocatorOrigin, B, A> Drop
+    for LinkedList<Origin, Destination, AllocatorOrigin, B, A>
 where
-    B: Bytes<Origin>,
+    B: Bytes<Origin, Destination>,
     A: Allocatable<AllocatorOrigin>,
 {
     fn drop(&mut self) {
@@ -151,18 +156,20 @@ where
 }
 
 // Iterator for LinkedList
-pub struct Iter<'a, Origin: 'a, AllocatorOrigin: 'a, B: 'a>
+pub struct Iter<'a, Origin: 'a, Destination: 'a, AllocatorOrigin: 'a, B: 'a>
 where
-    B: Bytes<Origin>,
+    B: Bytes<Origin, Destination>,
 {
-    current: Option<*mut LinkedNode<Origin, AllocatorOrigin, B>>,
+    current: Option<*mut LinkedNode<Origin, Destination, AllocatorOrigin, B>>,
     _phantom_o: PhantomData<&'a Origin>,
+    _phantom_d: PhantomData<&'a Destination>,
     _phantom_p: PhantomData<&'a AllocatorOrigin>,
 }
 
-impl<'a, Origin: 'a, AllocatorOrigin: 'a, B: 'a> Iterator for Iter<'a, Origin, AllocatorOrigin, B>
+impl<'a, Origin: 'a, Destination: 'a, AllocatorOrigin: 'a, B: 'a> Iterator
+    for Iter<'a, Origin, Destination, AllocatorOrigin, B>
 where
-    B: Bytes<Origin>,
+    B: Bytes<Origin, Destination>,
 {
     type Item = &'a B;
 
@@ -180,7 +187,7 @@ where
 // // Define a default constructor that uses heap allocation
 // impl<Origin, B> LinkedList<Origin, B, B>
 // where
-//     B: Bytes<Origin> + HeapAllocatable<Origin>,
+//     B: Bytes<Origin, Destination> + HeapAllocatable<Origin>,
 // {
 //     /// Creates a new LinkedList that uses the default heap allocation strategy
 //     pub fn with_heap_allocation() -> Self {

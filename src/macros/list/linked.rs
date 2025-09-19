@@ -14,11 +14,11 @@
 //             A: Allocatable<AllocatorOrigin>,
 //         {
 //             former:
-//                 Option<*mut LinkedNode<$crate::traits::Bytes<crate::Origin>, AllocatorOrigin, B>>,
+//                 Option<*mut LinkedNode<$crate::traits::Bytes<crate::Origin, crate::Origin>, AllocatorOrigin, B>>,
 //             latter:
-//                 Option<*mut LinkedNode<$crate::traits::Bytes<crate::Origin>, AllocatorOrigin, B>>,
+//                 Option<*mut LinkedNode<$crate::traits::Bytes<crate::Origin, crate::Origin>, AllocatorOrigin, B>>,
 //             numerosity: usize,
-//             _phantom_o: PhantomData<$crate::traits::Bytes<crate::Origin>>,
+//             _phantom_o: PhantomData<$crate::traits::Bytes<crate::Origin, crate::Origin>>,
 //             _phantom_p: PhantomData<AllocatorOrigin>,
 //             _phantom_a: PhantomData<A>,
 //         }
@@ -134,7 +134,7 @@
 //         // Implement Drop to ensure memory is freed when the list is dropped
 //         impl<Origin, AllocatorOrigin, B, A> Drop for $list_identifier<Origin, AllocatorOrigin, B, A>
 //         where
-//             B: Bytes<Origin>,
+//             B: Bytes<Origin, Destination>,
 //             A: Allocatable<AllocatorOrigin>,
 //         {
 //             fn drop(&mut self) {
@@ -145,7 +145,7 @@
 //         // Iterator for $list_identifier
 //         pub struct Iter<'a, Origin: 'a, AllocatorOrigin: 'a, B: 'a>
 //         where
-//             B: Bytes<Origin>,
+//             B: Bytes<Origin, Destination>,
 //         {
 //             current: Option<*mut LinkedNode<Origin, AllocatorOrigin, B>>,
 //             _phantom_o: PhantomData<&'a Origin>,
@@ -155,7 +155,7 @@
 //         impl<'a, Origin: 'a, AllocatorOrigin: 'a, B: 'a> Iterator
 //             for Iter<'a, Origin, AllocatorOrigin, B>
 //         where
-//             B: Bytes<Origin>,
+//             B: Bytes<Origin, Destination>,
 //         {
 //             type Item = &'a B;
 
@@ -173,7 +173,7 @@
 //         // // Define a default constructor that uses heap allocation
 //         // impl<Origin, B> $list_identifier<Origin, B, B>
 //         // where
-//         //     B: Bytes<Origin> + HeapAllocatable<Origin>,
+//         //     B: Bytes<Origin, Destination> + HeapAllocatable<Origin>,
 //         // {
 //         //     /// Creates a new $list_identifier that uses the default heap allocation strategy
 //         //     pub fn with_heap_allocation() -> Self {
