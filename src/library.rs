@@ -13,5 +13,6 @@ pub mod macros;
 pub mod node;
 pub mod string;
 pub mod traits;
+pub use string::String;
 
 trait_implement_primitives!();

@@ -6,27 +6,29 @@ use core::marker::PhantomData;
 
 /// A singly linked list implementation that can work with different allocation strategies
 #[derive(Debug)]
-pub struct LinkedList<BytesOrigin, AllocatorOrigin, T, A>
+pub struct LinkedList<BytesOrigin, AllocatorOrigin, B, A>
 where
-    T: Bytes<BytesOrigin>,
+    B: Bytes<BytesOrigin>,
     A: Allocatable<AllocatorOrigin>,
 {
-    former: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, T>>,
-    latter: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, T>>,
+    meta: Option<*mut B>,
+    former: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, B>>,
+    latter: Option<*mut LinkedNode<BytesOrigin, AllocatorOrigin, B>>,
     numerosity: usize,
     _phantom_o: PhantomData<BytesOrigin>,
     _phantom_p: PhantomData<AllocatorOrigin>,
     _phantom_a: PhantomData<A>,
 }
 
-impl<BytesOrigin, AllocatorOrigin, T, A> LinkedList<BytesOrigin, AllocatorOrigin, T, A>
+impl<BytesOrigin, AllocatorOrigin, B, A> LinkedList<BytesOrigin, AllocatorOrigin, B, A>
 where
-    T: Bytes<BytesOrigin>,
+    B: Bytes<BytesOrigin>,
     A: Allocatable<AllocatorOrigin>,
 {
     /// Create a new empty linked list
     pub fn new() -> Self {
         Self {
+            meta: None,
             former: None,
             latter: None,
             numerosity: 0,
@@ -34,6 +36,11 @@ where
             _phantom_p: PhantomData,
             _phantom_a: PhantomData,
         }
+    }
+
+    /// Returns the number of elements in the list
+    pub fn meta(&self) -> Option<*mut B> {
+        self.meta
     }
 
     /// Returns the number of elements in the list
@@ -47,7 +54,7 @@ where
     }
 
     /// Add an element to the front of the list
-    pub fn push_front(&mut self, value: T) {
+    pub fn push_front(&mut self, value: B) {
         let new_node = LinkedNode::allocate_node::<A>(value);
 
         unsafe {
@@ -65,7 +72,7 @@ where
     }
 
     /// Add an element to the back of the list
-    pub fn push_back(&mut self, value: T) {
+    pub fn push_back(&mut self, value: B) {
         let new_node = LinkedNode::allocate_node::<A>(value);
 
         unsafe {
@@ -83,7 +90,7 @@ where
     }
 
     /// Remove and return the element at the front of the list
-    pub fn pop_front(&mut self) -> Option<T> {
+    pub fn pop_front(&mut self) -> Option<B> {
         self.former.map(|former_ptr| unsafe {
             let former = &*former_ptr;
             let value = core::ptr::read(former.value());
@@ -102,12 +109,12 @@ where
     }
 
     /// Get a reference to the first element
-    pub fn front(&self) -> Option<&T> {
+    pub fn front(&self) -> Option<&B> {
         unsafe { self.former.map(|node| (*node).value()) }
     }
 
     /// Get a reference to the last element
-    pub fn back(&self) -> Option<&T> {
+    pub fn back(&self) -> Option<&B> {
         unsafe { self.latter.map(|node| (*node).value()) }
     }
 
@@ -117,7 +124,7 @@ where
     }
 
     /// Get an iterator over the values in the list
-    pub fn iter(&self) -> Iter<'_, BytesOrigin, AllocatorOrigin, T> {
+    pub fn iter(&self) -> Iter<'_, BytesOrigin, AllocatorOrigin, B> {
         Iter {
             current: self.former,
             _phantom_o: PhantomData,
@@ -127,9 +134,9 @@ where
 }
 
 // Implement Drop to ensure memory is freed when the list is dropped
-impl<Origin, AllocatorOrigin, T, A> Drop for LinkedList<Origin, AllocatorOrigin, T, A>
+impl<Origin, AllocatorOrigin, B, A> Drop for LinkedList<Origin, AllocatorOrigin, B, A>
 where
-    T: Bytes<Origin>,
+    B: Bytes<Origin>,
     A: Allocatable<AllocatorOrigin>,
 {
     fn drop(&mut self) {
@@ -138,20 +145,20 @@ where
 }
 
 // Iterator for LinkedList
-pub struct Iter<'a, Origin: 'a, AllocatorOrigin: 'a, T: 'a>
+pub struct Iter<'a, Origin: 'a, AllocatorOrigin: 'a, B: 'a>
 where
-    T: Bytes<Origin>,
+    B: Bytes<Origin>,
 {
-    current: Option<*mut LinkedNode<Origin, AllocatorOrigin, T>>,
+    current: Option<*mut LinkedNode<Origin, AllocatorOrigin, B>>,
     _phantom_o: PhantomData<&'a Origin>,
     _phantom_p: PhantomData<&'a AllocatorOrigin>,
 }
 
-impl<'a, Origin: 'a, AllocatorOrigin: 'a, T: 'a> Iterator for Iter<'a, Origin, AllocatorOrigin, T>
+impl<'a, Origin: 'a, AllocatorOrigin: 'a, B: 'a> Iterator for Iter<'a, Origin, AllocatorOrigin, B>
 where
-    T: Bytes<Origin>,
+    B: Bytes<Origin>,
 {
-    type Item = &'a T;
+    type Item = &'a B;
 
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
@@ -165,9 +172,9 @@ where
 }
 
 // // Define a default constructor that uses heap allocation
-// impl<Origin, T> LinkedList<Origin, T, T>
+// impl<Origin, B> LinkedList<Origin, B, B>
 // where
-//     T: Bytes<Origin> + HeapAllocatable<Origin>,
+//     B: Bytes<Origin> + HeapAllocatable<Origin>,
 // {
 //     /// Creates a new LinkedList that uses the default heap allocation strategy
 //     pub fn with_heap_allocation() -> Self {
