@@ -7,6 +7,9 @@ pub mod implement;
 #[macro_use]
 pub mod blanket;
 
+#[macro_use]
+pub mod naturalize;
+
 // #[macro_export]
 // macro_rules! trait_place_bytes {
 //     () => {

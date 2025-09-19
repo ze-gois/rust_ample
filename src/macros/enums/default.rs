@@ -32,8 +32,8 @@ macro_rules! r#enum {
             const BYTES_SIZE : usize = <$enum_discriminant_type as crate::traits::Bytes<crate::Origin>>::BYTES_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as crate::traits::Bytes<crate::Origin>>::BYTES_SIZE),*);
             const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$($variant_type)::* as crate::traits::Bytes<crate::Origin>>::BYTES_ALIGN),*);
 
-            fn to_bytes(&self, endianness: bool) -> [u8;Self::BYTES_SIZE] {
-                let mut bytes = [0u8;Self::BYTES_SIZE];
+            fn to_bytes(&self, endianness: bool) -> [u8;<Self as crate::traits::Bytes<crate::Origin>>::BYTES_SIZE] {
+                let mut bytes = [0u8;<Self as crate::traits::Bytes<crate::Origin>>::BYTES_SIZE];
 
                 match self {
                     $(
@@ -54,7 +54,7 @@ macro_rules! r#enum {
                 }
             }
 
-            fn from_bytes(bytes: [u8;Self::BYTES_SIZE], endianness: bool) -> Self {
+            fn from_bytes(bytes: [u8;<Self as crate::traits::Bytes<crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
                 let mut o = 0;
                 let mut discriminant_bytes = [0u8; <$enum_discriminant_type as crate::traits::Bytes<crate::Origin>>::BYTES_SIZE];
                 discriminant_bytes.copy_from_slice(&bytes[o..(o+<$enum_discriminant_type as crate::traits::Bytes<crate::Origin>>::BYTES_SIZE)]);
