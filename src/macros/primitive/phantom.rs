@@ -18,6 +18,13 @@ macro_rules! trait_implement_primitive_phantom_bytes {
             ) -> Self {
                 core::marker::PhantomData {}
             }
+
+            fn from_bytes_pointer(
+                _bytes_pointer: *const u8,
+                _endianness: bool,
+            ) -> Self {
+                core::marker::PhantomData {}
+            }
         }
     };
 }

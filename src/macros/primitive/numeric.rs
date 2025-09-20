@@ -21,6 +21,13 @@ macro_rules! trait_implement_primitive_numeric_bytes {
                         core::primitive::$($t)*::from_be_bytes(bytes)
                     }
                 }
+
+                fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                    let o = 0;
+                    let mut numeric_bytes = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                    unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), numeric_bytes.as_mut_ptr(), <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                    <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(numeric_bytes, endianness)
+                }
             }
         )*
     };

@@ -18,6 +18,10 @@ macro_rules! trait_implement_primitive_unit_bytes {
             ) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
                 [0u8; 0]
             }
+
+            fn from_bytes_pointer(_bytes_pointer: *const u8, _endianness: bool) -> Self {
+                ()
+            }
         }
     };
 }

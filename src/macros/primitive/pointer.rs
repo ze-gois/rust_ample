@@ -32,23 +32,18 @@ macro_rules! trait_implement_primitive_pointer_bytes {
             }
 
             fn from_bytes(
-                bytes: [u8;
-                    <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE],
+                bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE],
                 endianness: bool,
             ) -> Self {
-                let mut usize_bytes =
-                    [0u8;
-                        <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                 usize_bytes.copy_from_slice(&bytes);
-                if endianness {
-                    <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(
-                        usize_bytes,
-                    ) as Self
-                } else {
-                    <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_be_bytes(
-                        usize_bytes,
-                    ) as Self
-                }
+                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes, endianness) as Self
+            }
+
+            fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer, usize_bytes.as_mut_ptr(), <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes, endianness) as Self
             }
         }
 
@@ -66,39 +61,25 @@ macro_rules! trait_implement_primitive_pointer_bytes {
                 endianness: bool,
             ) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE]
             {
-                let mut bytes =
-                    [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                let usize_bytes = if endianness {
-                    <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(
-                        &(*self as usize),
-                    )
-                } else {
-                    <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_be_bytes(
-                        &(*self as usize),
-                    )
-                };
+                let mut bytes = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                let usize_bytes = <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(&(*self as usize), endianness);
                 bytes.copy_from_slice(&usize_bytes);
                 bytes
             }
 
             fn from_bytes(
-                bytes: [u8;
-                    <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE],
+                bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE],
                 endianness: bool,
             ) -> Self {
-                let mut usize_bytes =
-                    [0u8;
-                        <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                 usize_bytes.copy_from_slice(&bytes);
-                if endianness {
-                    <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(
-                        usize_bytes,
-                    ) as Self
-                } else {
-                    <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_be_bytes(
-                        usize_bytes,
-                    ) as Self
-                }
+                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes,endianness) as Self
+            }
+
+            fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer, usize_bytes.as_mut_ptr(), <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes, endianness) as Self
             }
         }
     };

@@ -24,6 +24,10 @@ macro_rules! trait_implement_primitive_bool_bytes {
             ) -> Self {
                 bytes[0] != 0
             }
+
+            fn from_bytes_pointer(bytes_pointer: *const u8, _endianness: bool) -> Self {
+                unsafe { *bytes_pointer != 0 }
+            }
         }
     };
 }

@@ -42,7 +42,25 @@ macro_rules! tuple {
                     ),*
                 )
             }
+
+            fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                let mut _o = 0;
+                $tuple_identifier (
+                    $(
+                        {
+                            let mut field_bytes = [0u8; <$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                            unsafe {
+                                core::ptr::copy_nonoverlapping(bytes_pointer.add(_o), field_bytes.as_mut_ptr(), <$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE);
+                            }
+                            let ordinal = <$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(field_bytes, endianness);
+                            _o = _o + <$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                            ordinal
+                        }
+                    ),*
+                )
+            }
         }
     };
 }
+
 pub use tuple;

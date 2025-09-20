@@ -81,11 +81,7 @@ macro_rules! r#struct {
                 $(
                     let mut field_bytes = [0u8; <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                     field_bytes.copy_from_slice(&bytes[_o..(_o+<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)]);
-                    let $field_identifier = if endianness {
-                        <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(field_bytes)
-                    } else {
-                        <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_be_bytes(field_bytes)
-                    };
+                    let $field_identifier = <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(field_bytes, endianness);
                     _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
                 )*
                 Self {
@@ -93,24 +89,20 @@ macro_rules! r#struct {
                 }
             }
 
-            // fn from_bytes_pointer(bytes: *const u8, endianness: bool) -> Self {
-            //     let mut _o = 0;
-            //     let _ = bytes;
-            //     let _ = endianness;
-            //     $(
-            //         let mut field_bytes = [0u8; <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-            //         field_bytes.copy_from_slice(&bytes[_o..(_o+<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)]);
-            //         let $field_identifier = if endianness {
-            //             <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(field_bytes)
-            //         } else {
-            //             <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_be_bytes(field_bytes)
-            //         };
-            //         _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
-            //     )*
-            //     Self {
-            //         $($field_identifier,)*
-            //     }
-            // }
+            fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                let mut _o = 0;
+                $(
+                    let mut field_bytes = [0u8; <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                    unsafe {
+                        core::ptr::copy_nonoverlapping(bytes_pointer.add(_o), field_bytes.as_mut_ptr(), <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE);
+                    }
+                    let $field_identifier = <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(field_bytes,endianness);
+                    _o = _o + <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                )*
+                Self {
+                    $($field_identifier,)*
+                }
+            }
         }
 
 

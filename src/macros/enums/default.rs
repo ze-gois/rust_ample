@@ -72,7 +72,26 @@ macro_rules! r#enum {
                     )*
                     _ => unreachable!()
                 }
+            }
 
+            fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                let mut o = 0;
+                let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), discriminant_bytes.as_mut_ptr(), <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                let discriminant = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(discriminant_bytes, endianness);
+                o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                match discriminant {
+                    $(
+                        $variant_discriminant => {
+                            Self::$variant_identifier({
+                                let mut payload_bytes = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), payload_bytes.as_mut_ptr(), <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                                <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(payload_bytes, endianness)
+                            })
+                        },
+                    )*
+                    _ => unreachable!()
+                }
             }
         }
     };

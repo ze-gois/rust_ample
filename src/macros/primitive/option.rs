@@ -31,6 +31,24 @@ macro_rules! trait_implement_primitive_option_bytes {
                     }
                 }
 
+                fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                    let mut option_bytes = [0u8; <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                    let mut o = 0;
+                    let mut l = <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                    unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), option_bytes.as_mut_ptr(), <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                    let option = <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(option_bytes, endianness);
+
+                    if option == 0 {
+                        None
+                    } else {
+                        o = l;
+                        l = l + <$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                        let mut value_bytes = [0u8; <$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                        unsafe {core::ptr::copy_nonoverlapping(bytes_pointer.add(o), value_bytes.as_mut_ptr(), <$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                        Some(<$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(value_bytes, endianness))
+                    }
+                }
+
                 fn to_bytes(&self, endianness: bool) -> [u8; <Option<$($type)::*> as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
                     let mut bytes = [0u8; <Option<$($type)::*> as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                     if let Some(v) = self {
