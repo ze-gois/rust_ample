@@ -38,6 +38,10 @@ macro_rules! trait_bytes_place {
                 Self: Sized,
                 [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]:;
 
+            // fn from_bytes_pointer(pointer: *const u8, endianness: bool) -> Self
+            // where
+            //     Self: Sized;
+
             fn from_le_bytes(
                 bytes: [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE],
             ) -> Self
