@@ -19,12 +19,10 @@ autobins = true
 autotests = true
 autobenches = true
 resolver = "2"
-publish-field = true
-license = "MIT OR Apache-2.0" # redundante com license-file
-# links = ""                    # se a crate linka C libs externas
+# license = "BSD-3 Clause"
+# links = ""
 
 [package.metadata]
-metadata = "required"
 mode = "unoticed"
 note = "esta é uma crate padrão"
 whatever = 42
