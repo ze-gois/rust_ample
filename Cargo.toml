@@ -1,6 +1,5 @@
 [package]
 name = "ample"
-publish = true
 version = "0.1.1"
 edition = "2024"
 authors = ["José Gois <ze.gois.00@gmail.com>"]
@@ -12,13 +11,77 @@ homepage = "https://userspace.builders"
 license-file = "LICENSE"
 keywords = ["architecture", "operating_system"]
 categories = ["no-std", "os"]
+publish = true
+exclude = []
+include = []
+rust-version = "1.85"
+autobins = true
+autotests = true
+autobenches = true
+resolver = "2"
+publish-field = true
+license = "MIT OR Apache-2.0" # redundante com license-file
+# links = ""                    # se a crate linka C libs externas
+
+[package.metadata]
+metadata = "required"
+mode = "unoticed"
+note = "esta é uma crate padrão"
+whatever = 42
+
+[package.metadata.debug]
+mode = "debug"
+
+[package.metadata.release]
+metadata = "required"
+# pre-release-hook = "./scripts/pre_release.sh"
+# pre-release-replacements = []
 
 [lib]
 name = "ample"
 path = "src/library.rs"
+crate-type = ["lib"]
 test = false
+doctest = true
+bench = false
+required-features = []        # nenhuma feature obrigatória
+doc = true                     # gera docs
 
 [dependencies]
 
 [build-dependencies]
 cc = "1.0"
+
+[dev-dependencies]
+
+[features]
+default = []
+all = []
+
+[badges]
+github-actions = { repository = "ze-gois/rust_ample" }
+# # travis-ci = { repository = "ze-gois/rust_ample", branch = "main" }
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+lto = false
+panic = "unwind"
+incremental = true
+codegen-units = 256
+debug-assertions = true
+split-debuginfo = "packed"
+
+[profile.release]
+opt-level = 3
+debug = false
+overflow-checks = true
+lto = true
+panic = "abort"
+codegen-units = 1
+incremental = false
+debug-assertions = false
+split-debuginfo = "unpacked"
+rpath = false
+strip = "debuginfo"
