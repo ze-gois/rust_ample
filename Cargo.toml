@@ -1,6 +1,6 @@
 [package]
 name = "ample"
-version = "0.1.124"
+version = "0.1.125"
 edition = "2024"
 authors = ["José Gois <ze.gois.00@gmail.com>"]
 description = "ample library"
