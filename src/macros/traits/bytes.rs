@@ -10,6 +10,21 @@ pub mod blanket;
 #[macro_use]
 pub mod naturalize;
 
+#[macro_use]
+pub mod option;
+
+#[macro_use]
+pub mod phantom;
+
+#[macro_use]
+pub mod pointer;
+
+#[macro_use]
+pub mod slice;
+
+#[macro_use]
+pub mod tuple;
+
 // #[macro_export]
 // macro_rules! trait_place_bytes {
 //     () => {

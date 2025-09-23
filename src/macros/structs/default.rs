@@ -31,10 +31,20 @@ macro_rules! r#struct {
             ),*
         }
 
-        // crate::trait_implement_primitive_pointer_bytes!($struct_identifier $(<$($struct_generics),*>)?);
-        // crate::trait_implement_primitive_array_bytes!($struct_identifier $(<$($struct_generics),*>)?);
-        // crate::trait_implement_primitive_option_bytes!($struct_identifier $(<$($struct_generics),*>)?);
+        $crate::trait_implement_bytes_option!(
+            $struct_identifier $(<$($struct_generics),*>)?
+            $(where
+                $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+            )?
+        );
 
+
+        $crate::trait_implement_bytes_slice!(
+            $struct_identifier $(<$($struct_generics),*>)?
+            $(where
+                $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+            )?
+        );
 
         impl$(<$($struct_generics),*>)? $crate::traits::Primitive<crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
         $(where
@@ -63,11 +73,7 @@ macro_rules! r#struct {
                 // let _ = endianness;
                 $(
                     b[o..(o+<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
-                        &if endianness {
-                            <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(&self.$field_identifier)
-                        } else {
-                            <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_be_bytes(&self.$field_identifier)
-                        }
+                        &<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(&self.$field_identifier,endianness)
                     );
                     o = o + <$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
                 )*

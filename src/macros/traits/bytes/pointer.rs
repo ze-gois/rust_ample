@@ -1,6 +1,6 @@
 #[macro_export]
-macro_rules! trait_implement_primitive_pointer_bytes {
-    ($($type:tt)*) => {
+macro_rules! trait_implement_bytes_pointer {
+    () => {
         impl<B> $crate::traits::Bytes<crate::Origin, crate::Origin> for *const B
         where
             B: $crate::traits::Bytes<crate::Origin, crate::Origin>,
