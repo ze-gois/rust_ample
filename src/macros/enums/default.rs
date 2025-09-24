@@ -32,6 +32,17 @@ macro_rules! r#enum {
             const BYTES_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE),*);
             const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
 
+
+            fn offset_step(&self) -> usize {
+                match self {
+                    $(
+                        Self::$variant_identifier(_) => {
+                            <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE
+                        }
+                    ),*
+                }
+            }
+
             fn to_bytes(&self, endianness: bool) -> [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
                 let mut bytes = [0u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
 
@@ -94,6 +105,16 @@ macro_rules! r#enum {
                 }
             }
         }
+
+        impl $crate::traits::BytesDefault<crate::Origin> for $enum_identifier {}
+
+        // impl$(<$($struct_generics),*>)? $crate::traits::BytesDefault<crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
+        // $(where
+        //     $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+        // )?
+        // {
+        // }
+
     };
 }
 pub use r#enum;

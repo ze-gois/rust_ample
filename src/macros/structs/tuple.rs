@@ -60,6 +60,19 @@ macro_rules! tuple {
                 )
             }
         }
+
+        $crate::trait_implement_bytes_slice!(
+            $tuple_identifier
+        );
+
+        impl $crate::traits::BytesDefault<crate::Origin> for $tuple_identifier {}
+
+        // impl$(<$($struct_generics),*>)? $crate::traits::BytesDefault<crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
+        // $(where
+        //     $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+        // )?
+        // {
+        // }
     };
 }
 
