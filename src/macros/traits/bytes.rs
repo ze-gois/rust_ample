@@ -32,7 +32,7 @@ macro_rules! trait_bytes_place {
             const BYTES_SIZE: usize;
             const BYTES_ALIGN: usize;
 
-            fn offset_step(&self) -> usize {
+            fn primitive_offset_size(&self) -> usize {
                 Self::BYTES_SIZE
             }
 

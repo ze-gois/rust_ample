@@ -33,11 +33,11 @@ macro_rules! r#enum {
             const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
 
 
-            fn offset_step(&self) -> usize {
+            fn primitive_offset_size(&self) -> usize {
                 match self {
                     $(
-                        Self::$variant_identifier(_) => {
-                            <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE
+                        Self::$variant_identifier(variant_value) => {
+                            <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::primitive_offset_size(&variant_value)
                         }
                     ),*
                 }

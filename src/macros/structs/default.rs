@@ -67,6 +67,10 @@ macro_rules! r#struct {
             const BYTES_SIZE : usize = $(<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE +)* 0;
             const BYTES_ALIGN : usize = core::mem::align_of::<$struct_identifier $(<$($struct_generics),*>)?>();
 
+            fn primitive_offset_size(&self) -> usize {
+                $(<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::primitive_offset_size(&self.$field_identifier) +)* 0
+            }
+
             fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
                 let mut b = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                 let mut o = 0;

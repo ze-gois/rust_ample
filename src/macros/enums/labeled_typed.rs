@@ -35,7 +35,7 @@
 /// ```
 #[macro_export]
 #[rustfmt::skip]
-macro_rules! enum_labeled {
+macro_rules! enum_labeled_typed {
     (
         $(#[$($struct_doc:meta),*])*
         $enum_vis:vis enum $enum_identifier:ident,
@@ -46,6 +46,7 @@ macro_rules! enum_labeled {
                 [
                     $variant_discriminant:expr;
                     $variant_identifier:ident;
+                    $variant_type:ty;
                     $variant_const_identifier:ident;
                     $variant_acronym:expr;
                     $variant_description:expr
@@ -59,7 +60,7 @@ macro_rules! enum_labeled {
             $(#[$($struct_doc),*])*
             $enum_vis enum $enum_identifier {
                 $(
-                    $variant_identifier = $variant_discriminant
+                    $variant_identifier($variant_type) = $variant_discriminant
                 ),*
             }
         );
@@ -84,12 +85,34 @@ macro_rules! enum_labeled {
             }
         }
 
+        // impl core::ops::Add for $enum_identifier {
+        //     type Output = Self;
+
+        //     fn add(self, rhs: Self) -> Self::Output {
+        //         $enum_identifier::from(self.discriminant() | rhs.discriminant())
+        //     }
+        // }
+
+        // impl core::ops::Sub for $enum_identifier {
+        //     type Output = Self;
+
+        //     fn sub(self, rhs: Self) -> Self::Output {
+        //         $enum_identifier::from(self.discriminant() & !rhs.discriminant())
+        //     }
+        // }
+
         impl core::fmt::Display for $enum_identifier {
             fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 use $crate::traits::enums::Labeled;
                 write!(f, "{}:{}",self.discriminant(), self.description())
             }
         }
+
+        // impl core::fmt::Debug for $enum_identifier {
+        //     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        //         write!(f, "{}:{}",self.discriminant(), self.acronym())
+        //     }
+        // }
     };
 }
-pub use enum_labeled;
+pub use enum_labeled_typed;
