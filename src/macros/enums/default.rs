@@ -5,16 +5,20 @@ macro_rules! r#enum {
         $(#[$($struct_doc:meta),*])*
         $enum_vis:vis enum $enum_identifier:ident {
             $(
-                $variant_identifier:ident($($variant_type:tt)::*) = $variant_discriminant:expr
+                $variant_identifier:ident = $variant_discriminant:tt
             ),* $(,)?
         }
     ) => {
+
+        // pub mod constants {
+        //     $(pub const $variant_identifier: $enum_discriminant_type = $variant_discriminant as $enum_discriminant_type;)*
+        // }
 
         $(#[$($struct_doc),*])*
         #[repr(u64)]
         $enum_vis enum $enum_identifier {
             $(
-                $variant_identifier($($variant_type)::*) = $variant_discriminant
+                $variant_identifier = $variant_discriminant
             ),*
         }
 
@@ -22,25 +26,27 @@ macro_rules! r#enum {
             pub fn discriminant(&self) -> $enum_discriminant_type {
                 match self {
                     $(
-                        $enum_identifier::$variant_identifier(_) => $variant_discriminant
+                        $enum_identifier::$variant_identifier => $variant_discriminant
                     ),*
+                }
+            }
+
+            pub fn from_discriminant(discriminant: $enum_discriminant_type) -> Option<Self> {
+                match discriminant {
+                    $(
+                        $variant_discriminant => Some($enum_identifier::$variant_identifier),
+                    )*
+                    _ => None,
                 }
             }
         }
 
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $enum_identifier {
-            const BYTES_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE),*);
-            const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
+            const BYTES_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+            const BYTES_ALIGN : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
-
-            fn primitive_offset_size(&self) -> usize {
-                match self {
-                    $(
-                        Self::$variant_identifier(variant_value) => {
-                            <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::primitive_offset_size(&variant_value)
-                        }
-                    ),*
-                }
+            fn primitive_load_size(&self) -> usize {
+                <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE
             }
 
             fn to_bytes(&self, endianness: bool) -> [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
@@ -48,17 +54,14 @@ macro_rules! r#enum {
 
                 match self {
                     $(
-                        Self::$variant_identifier(payload) => {
+                        Self::$variant_identifier => {
                             let discriminant = self.discriminant();
 
                             let mut o = 0;
                             bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
                                 &<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(&discriminant,endianness)
                             );
-                            o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
-                            bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
-                                &<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(payload,endianness)
-                            );
+
                             bytes
                         }
                     ),*
@@ -74,11 +77,7 @@ macro_rules! r#enum {
                 match discriminant {
                     $(
                         $variant_discriminant => {
-                            Self::$variant_identifier({
-                                let mut payload = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                                payload.copy_from_slice(&bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)]);
-                                <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(payload,endianness)
-                            })
+                            Self::$variant_identifier
                         },
                     )*
                     _ => unreachable!()
@@ -94,17 +93,31 @@ macro_rules! r#enum {
                 match discriminant {
                     $(
                         $variant_discriminant => {
-                            Self::$variant_identifier({
-                                let mut payload_bytes = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), payload_bytes.as_mut_ptr(), <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
-                                <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(payload_bytes, endianness)
-                            })
+                            Self::$variant_identifier
                         },
                     )*
                     _ => unreachable!()
                 }
             }
         }
+
+        $crate::trait_implement_bytes_option!(
+            $enum_identifier
+        );
+
+
+        $crate::trait_implement_bytes_slice!(
+            $enum_identifier
+        );
+
+        impl Clone for $enum_identifier {
+            fn clone(&self) -> Self {
+                let bytes = <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(self);
+                <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(bytes)
+            }
+        }
+
+        impl Copy for $enum_identifier { }
 
         impl $crate::traits::BytesDefault<crate::Origin> for $enum_identifier {}
 

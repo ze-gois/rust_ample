@@ -1,140 +1,137 @@
 #[macro_export]
-#[rustfmt::skip]
-macro_rules! enum_typed {
+macro_rules! r#enum_typed {
     (
-        $enum_identifier:ident;
-        $variant:ty;
-        $label:expr;
-        $($module:tt)::*;
-        [
+        $enum_discriminant_type:ty;
+        $(#[$($struct_doc:meta),*])*
+        $enum_vis:vis enum $enum_identifier:ident {
             $(
-                [
-                    $discriminant:expr;
-                    $identifier:ident;
-                    $type:ty;
-                    |$argumento:ident : $tipo:ty|{$($lambda:tt)*};
-                    $const_identifier:ident;
-                    $acronym:expr;
-                    $description:expr
-                ]
+                $variant_identifier:ident($($variant_type:tt)::*) = $variant_discriminant:expr
             ),* $(,)?
-        ]
+        }
     ) => {
-        pub type Franco = *const u8;
-        pub use $($module)::*::*;
 
-        // Define Linux standard error constants in an discriminant module with standard names
-        pub mod constants {
+        $(#[$($struct_doc),*])*
+        #[repr(u64)]
+        $enum_vis enum $enum_identifier {
             $(
-                pub const $const_identifier: $variant = $discriminant;
-            )*
-        }
-
-        pub mod types {
-            pub use $($module)::*::*;
-            $( pub type $identifier = $type; )*
-        }
-
-        #[repr(C)]
-        #[derive(Copy, Clone, Eq, PartialEq)]
-        pub enum $enum_identifier {
-            $($identifier = $discriminant,)*
-            TODO,
+                $variant_identifier($($variant_type)::*) = $variant_discriminant
+            ),*
         }
 
         impl $enum_identifier {
-            pub fn from(discriminant: $variant) -> Self {
+            pub fn discriminant(&self) -> $enum_discriminant_type {
+                match self {
+                    $(
+                        $enum_identifier::$variant_identifier(_) => $variant_discriminant
+                    ),*
+                }
+            }
+        }
+
+        impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $enum_identifier {
+            const BYTES_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE),*);
+            const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
+
+            fn primitive_load_size(&self) -> usize {
+                match self {
+                    $(
+                        Self::$variant_identifier(variant_value) => {
+                            <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::primitive_load_size(&variant_value)
+                        }
+                    ),*
+                }
+            }
+
+            fn to_bytes(&self, endianness: bool) -> [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
+                let mut bytes = [0u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+
+                match self {
+                    $(
+                        Self::$variant_identifier(payload) => {
+                            let discriminant = self.discriminant();
+
+                            let mut o = 0;
+                            bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
+                                &<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(&discriminant,endianness)
+                            );
+                            o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                            bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
+                                &<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(payload,endianness)
+                            );
+                            bytes
+                        }
+                    ),*
+                }
+            }
+
+            fn from_bytes(bytes: [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
+                let mut o = 0;
+                let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                discriminant_bytes.copy_from_slice(&bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)]);
+                let discriminant = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(discriminant_bytes, endianness);
+                o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
                 match discriminant {
-                    $($discriminant => Self::$identifier,)*
-                    _ => Self::TODO,
+                    $(
+                        $variant_discriminant => {
+                            Self::$variant_identifier({
+                                let mut payload = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                                payload.copy_from_slice(&bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)]);
+                                <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(payload,endianness)
+                            })
+                        },
+                    )*
+                    _ => unreachable!()
                 }
             }
 
-            pub fn to(&self) -> $variant {
-                match *self {
-                    $(Self::$identifier => $discriminant,)*
-                    _ => <$variant>::MAX
-                }
-            }
-
-            pub fn str(&self) -> &str {
-                match self {
-                    $(Self::$identifier => $description,)*
-                    _ => "TODO"
-                }
-            }
-
-            pub fn acronym(&self) -> &str {
-                match *self {
-                    $(Self::$identifier => $acronym,)*
-                    _ => "Unknown error",
-                }
-            }
-        }
-
-        impl core::ops::Add for $enum_identifier {
-            type Output = Self;
-
-            fn add(self, rhs: Self) -> Self::Output {
-                $enum_identifier::from(self.to() | rhs.to())
-            }
-        }
-
-        impl core::ops::Sub for $enum_identifier {
-            type Output = Self;
-
-            fn sub(self, rhs: Self) -> Self::Output {
-                $enum_identifier::from(self.to() & !rhs.to())
-            }
-        }
-
-        impl core::fmt::Display for $enum_identifier {
-            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-                write!(f, "{}:{}",self.to(), self.str())
-            }
-        }
-
-        impl core::fmt::Debug for $enum_identifier {
-            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-                write!(f, "{}:{}",self.to(), self.acronym())
-            }
-        }
-
-        #[derive(Debug, Clone, Copy)]
-        pub enum EnumTyped {
-            $($identifier($type),)*
-            TODO((usize,usize)),
-        }
-
-        impl EnumTyped {
-            pub fn from_kv(etype: *const $variant, p: *const u8) -> Self {
-                match $enum_identifier::from(unsafe { *etype }) {
-                    $( $enum_identifier::$identifier => EnumTyped::$identifier( unsafe { (|$argumento:$tipo|{ $($lambda)* })(p)} ),)*
-                    _ => EnumTyped::TODO(  unsafe {(*etype, *(p as *const usize)) }),
-                }
-            }
-
-            pub fn to_kv(&self) -> ($variant, *const u8) {
-                match *self {
-                    $(EnumTyped::$identifier(v) => (($enum_identifier::$identifier).to(), v as *const u8),)*
-                    EnumTyped::TODO(id) => ($enum_identifier::TODO.to(), id.0 as *const u8),
-                }
-            }
-
-            pub fn to_k(&self) -> $enum_identifier {
-                match *self {
-                    $(EnumTyped::$identifier(_) => $enum_identifier::$identifier,)*
-                    EnumTyped::TODO(id) => $enum_identifier::TODO,
-                }
-            }
-
-            pub fn is_null(&self) -> bool {
-                match self {
-                    EnumTyped::Null(0) => true,
-                    _ => false,
+            fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
+                let mut o = 0;
+                let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), discriminant_bytes.as_mut_ptr(), <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                let discriminant = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(discriminant_bytes, endianness);
+                o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                match discriminant {
+                    $(
+                        $variant_discriminant => {
+                            Self::$variant_identifier({
+                                let mut payload_bytes = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), payload_bytes.as_mut_ptr(), <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                                <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(payload_bytes, endianness)
+                            })
+                        },
+                    )*
+                    _ => unreachable!()
                 }
             }
         }
+
+        $crate::trait_implement_bytes_option!(
+            $enum_identifier
+        );
+
+
+        $crate::trait_implement_bytes_slice!(
+            $enum_identifier
+        );
+
+        impl Clone for $enum_identifier {
+            fn clone(&self) -> Self {
+                let bytes = <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(self);
+                <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(bytes)
+            }
+        }
+
+        impl Copy for $enum_identifier { }
+
+        impl $crate::traits::BytesDefault<crate::Origin> for $enum_identifier {}
+
+        // impl$(<$($struct_generics),*>)? $crate::traits::BytesDefault<crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
+        // $(where
+        //     $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+        // )?
+        // {
+        // }
+
     };
 }
-pub use enum_typed;
+pub use r#enum_typed;

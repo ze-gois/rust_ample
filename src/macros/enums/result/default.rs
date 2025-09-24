@@ -22,9 +22,9 @@ macro_rules! result {
         );* $(;)?
     ) => {
         $(
-            $crate::r#enum!(
+            $crate::r#enum_typed!(
                 $result_discriminant_type;
-                #[derive(Debug, Clone, Copy)]
+                #[derive(Debug)]
                 $(#[$($result_doc),*])*
                 pub enum $result_identifier {
                     $(

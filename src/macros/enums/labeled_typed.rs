@@ -55,7 +55,7 @@ macro_rules! enum_labeled_typed {
         ]
     ) => {
 
-        $crate::r#enum!(
+        $crate::r#enum_typed!(
             $enum_discriminant_type;
             $(#[$($struct_doc),*])*
             $enum_vis enum $enum_identifier {

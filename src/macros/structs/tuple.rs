@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! tuple {
+macro_rules! struct_tuple {
     (
         $(#[$($tuple_doc:meta),*])*
         $tuple_visualization:vis struct $tuple_identifier:ident ($($ordinal_no:tt : $ordinal_visibility:vis $ordinal_type:ty),*)
@@ -76,4 +76,4 @@ macro_rules! tuple {
     };
 }
 
-pub use tuple;
+pub use struct_tuple;

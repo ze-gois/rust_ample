@@ -44,9 +44,9 @@ macro_rules! enum_labeled {
         [
             $(
                 [
-                    $variant_discriminant:expr;
+                    $variant_discriminant:tt;
                     $variant_identifier:ident;
-                    $variant_const_identifier:ident;
+                    $($variant_const_identifier:ident),*;
                     $variant_acronym:expr;
                     $variant_description:expr
                 ]
@@ -66,20 +66,22 @@ macro_rules! enum_labeled {
 
         pub mod constants {
             $(
-                pub const $variant_const_identifier: $enum_discriminant_type = $variant_discriminant;
+                $(
+                    pub const $variant_const_identifier: $enum_discriminant_type = $variant_discriminant;
+                )*
             )*
         }
 
         impl $crate::traits::enums::Labeled<crate::Origin> for $enum_identifier {
             fn description(&self) -> &str {
                 match self {
-                    $(Self::$variant_identifier(_) => $variant_description,)*
+                    $(Self::$variant_identifier => $variant_description,)*
                 }
             }
 
             fn acronym(&self) -> &str {
                 match *self {
-                    $(Self::$variant_identifier(_) => $variant_acronym,)*
+                    $(Self::$variant_identifier => $variant_acronym,)*
                 }
             }
         }

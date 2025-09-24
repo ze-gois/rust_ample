@@ -88,7 +88,6 @@ macro_rules! trait_implement_bytes_slice {
                 }
             }
 
-
             impl <const N: usize> $crate::traits::BytesDefault<crate::Origin> for [$($type)::*; N]
             $(where
                 $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
