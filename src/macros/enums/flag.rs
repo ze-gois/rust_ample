@@ -193,6 +193,13 @@ macro_rules! enum_flag {
             }
         }
 
+        impl core::ops::BitAnd for $enum_identifier {
+            type Output = $enum_discriminant_type;
+            fn bitand(self, rhs: Self) -> Self::Output {
+                self.to() & rhs.to()
+            }
+        }
+
         impl core::ops::Add for $enum_identifier {
             type Output = Self;
 

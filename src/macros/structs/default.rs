@@ -31,20 +31,6 @@ macro_rules! r#struct {
             ),*
         }
 
-        $crate::trait_implement_bytes_option!(
-            $struct_identifier $(<$($struct_generics),*>)?
-            $(where
-                $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
-            )?
-        );
-
-
-        $crate::trait_implement_bytes_slice!(
-            $struct_identifier $(<$($struct_generics),*>)?
-            $(where
-                $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
-            )?
-        );
 
         impl$(<$($struct_generics),*>)? $crate::traits::Primitive<crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
         $(where
@@ -114,6 +100,21 @@ macro_rules! r#struct {
                 }
             }
         }
+
+        $crate::trait_implement_bytes_option!(
+            $struct_identifier $(<$($struct_generics),*>)?
+            $(where
+                $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+            )?
+        );
+
+
+        $crate::trait_implement_bytes_slice!(
+            $struct_identifier $(<$($struct_generics),*>)?
+            $(where
+                $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
+            )?
+        );
 
         impl$(<$($struct_generics),*>)? $crate::traits::BytesDefault<crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
         $(where

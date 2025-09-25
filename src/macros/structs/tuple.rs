@@ -2,18 +2,18 @@
 macro_rules! struct_tuple {
     (
         $(#[$($tuple_doc:meta),*])*
-        $tuple_visualization:vis struct $tuple_identifier:ident ($($ordinal_no:tt : $ordinal_visibility:vis $ordinal_type:ty),*)
+        $struct_visualization:vis struct $struct_identifier:ident ($($ordinal_no:tt : $ordinal_visibility:vis $ordinal_type:ty),*)
     ) => {
         $(#[$($tuple_doc),*])*
-        $tuple_visualization struct $tuple_identifier($($ordinal_visibility $ordinal_type),*);
+        $struct_visualization struct $struct_identifier($($ordinal_visibility $ordinal_type),*);
 
-        impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $tuple_identifier {
+        impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $struct_identifier {
             const BYTES_SIZE : usize = $(<$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE + )* 0;
             const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN ),*);
 
 
-            fn to_bytes(&self, endianness: bool) -> [u8; <$tuple_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
-                let mut b = [0u8; <$tuple_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+            fn to_bytes(&self, endianness: bool) -> [u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
+                let mut b = [0u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
                 let mut o = 0;
                 $(
                     b[o..(o+<$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
@@ -24,9 +24,9 @@ macro_rules! struct_tuple {
                 b
             }
 
-            fn from_bytes(bytes : [u8; <$tuple_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> $tuple_identifier {
+            fn from_bytes(bytes : [u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> $struct_identifier {
                 let mut o = 0;
-                $tuple_identifier (
+                $struct_identifier (
                     $(
                         {
                             let mut field_bytes = [0u8; <$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
@@ -45,7 +45,7 @@ macro_rules! struct_tuple {
 
             fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
                 let mut _o = 0;
-                $tuple_identifier (
+                $struct_identifier (
                     $(
                         {
                             let mut field_bytes = [0u8; <$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
@@ -61,13 +61,40 @@ macro_rules! struct_tuple {
             }
         }
 
-        $crate::trait_implement_bytes_slice!(
-            $tuple_identifier
+        $crate::trait_implement_bytes_option!(
+            $struct_identifier
         );
 
-        impl $crate::traits::BytesDefault<crate::Origin> for $tuple_identifier {}
 
-        // impl$(<$($struct_generics),*>)? $crate::traits::BytesDefault<crate::Origin> for $struct_identifier $(<$($struct_generics),*>)?
+        $crate::trait_implement_bytes_slice!(
+            $struct_identifier
+        );
+
+        impl $crate::traits::BytesDefault<crate::Origin> for $struct_identifier {}
+
+        impl Clone for $struct_identifier
+
+        {
+            fn clone(&self) -> Self {
+                let bytes = <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(self);
+                <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(bytes)
+            }
+        }
+
+        impl Copy for $struct_identifier
+        {
+        }
+
+
+        impl Default for $struct_identifier
+        {
+            fn default() -> Self {
+                <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes([0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE])
+            }
+        }
+
+
+        // impl $crate::traits::BytesDefault<crate::Origin> for $struct_identifier
         // $(where
         //     $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
         // )?

@@ -1,3 +1,5 @@
+// pub mod alloc;
+
 pub trait AllocatableResult {
     fn as_ptr(&self) -> *mut u8;
     fn from_raw(raw: *mut u8) -> Self;
