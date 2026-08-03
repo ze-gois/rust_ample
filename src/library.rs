@@ -3,8 +3,8 @@
 #![allow(unused_assignments)]
 #![feature(generic_const_exprs)]
 #![feature(generic_const_items)]
-#![feature(const_trait_impl)]
-#![feature(fundamental)]
+// #![feature(const_trait_impl)]
+// #![feature(fundamental)]
 #![feature(generic_const_parameter_types)]
 
 pub struct Origin {}
