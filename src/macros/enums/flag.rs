@@ -15,24 +15,6 @@
 /// * A list of error variants with their descriptions, discriminant values and Linux standard constant names
 ///   [VariantName, discriminant_value, "description", "LINUX_CONSTANT"]
 ///
-/// # Example
-///
-/// ```
-/// $enum_identifier:ident,
-/// $enum_discriminant_type:ty,
-/// $enum_label:expr,
-/// [
-///     $(
-///         [
-///             $variant_discriminant:expr;
-///             $variant_identifier:ident;
-///             $variant_constant_identifier:ident;
-///             $variant_acronym:expr;
-///             $variant_description:expr
-///         ]
-///     ),* $(,)?
-/// ]
-/// ```
 #[macro_export]
 #[rustfmt::skip]
 macro_rules! enum_flag {
