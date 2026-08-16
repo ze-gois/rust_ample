@@ -19,6 +19,9 @@ pub trait Allocatable<Origin> {
     /// Allocates zeroed memory according to the provided layout
     fn allocate_zeroed(numerosity: usize) -> Result<Self::Ok, Self::Error> {
         let pointer = Self::allocate(numerosity)?.as_ptr();
+        if pointer.is_null() {
+            return core::result::Result::Err(Self::Error::from_raw(pointer));
+        }
         for p in 0..numerosity {
             unsafe {
                 *(pointer.add(p)) = 0;

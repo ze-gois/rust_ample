@@ -15,7 +15,7 @@ macro_rules! r#enum {
         // }
 
         $(#[$($struct_doc),*])*
-        #[repr(u64)]
+        #[repr($enum_discriminant_type)]
         $enum_vis enum $enum_identifier {
             $(
                 $variant_identifier = $variant_discriminant

@@ -62,13 +62,13 @@ macro_rules! enum_flag {
 
 
         $(#[$($enum_meta),*])*
-        #[repr(C)]
+        #[repr($enum_discriminant_type)]
         #[derive(Copy, Clone, Eq, PartialEq)]
         $enum_vis enum $enum_identifier {
             $(
-                $variant_identifier,
+                $variant_identifier = $variant_discriminant,
             )*
-            TODO,
+            TODO = <$enum_discriminant_type>::MAX,
         }
 
         impl $enum_identifier {
