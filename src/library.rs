@@ -7,6 +7,8 @@
 // #![feature(fundamental)]
 #![feature(generic_const_parameter_types)]
 
+extern crate alloc;
+
 pub struct Origin {}
 
 #[macro_use]
@@ -16,7 +18,9 @@ pub mod node;
 pub mod result;
 pub mod string;
 pub mod traits;
+pub mod vec;
 pub use string::String;
+pub use vec::Vec;
 
 pub use result::{Error, Ok, Result};
 
