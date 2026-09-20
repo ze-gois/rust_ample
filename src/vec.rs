@@ -410,5 +410,3 @@ fn deallocate_buffer<T>(ptr: NonNull<T>, capacity: usize) {
 fn capacity_overflow() -> ! {
     panic!("capacity overflow")
 }
-
-
