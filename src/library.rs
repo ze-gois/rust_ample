@@ -14,6 +14,7 @@ pub struct Origin {}
 #[macro_use]
 pub mod macros;
 pub mod list;
+pub mod math;
 pub mod node;
 pub mod result;
 pub mod string;
