@@ -51,7 +51,6 @@ macro_rules! r#struct {
             $($where_alias : $($where_boundary)::* $(<$($($where_boundary_generics)::*),*>)?),*
         )?{
             const REPRESENTATION_SIZE : usize = $(<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE +)* 0;
-            const BYTES_ALIGN : usize = core::mem::align_of::<$struct_identifier $(<$($struct_generics),*>)?>();
 
             fn primitive_load_size(&self) -> usize {
                 $(<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::primitive_load_size(&self.$field_identifier) +)* 0
