@@ -3,7 +3,6 @@ macro_rules! traits_implement_bytes_tuple {
     ($($($ordinal_type:tt)::*),*) => {
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for ($($ordinal_index:tt: $($ordinal_type)::*),*) {
             const REPRESENTATION_SIZE: usize = $(<$($ordinal_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE + )* 0;
-            const BYTES_ALIGN: usize = $crate::expressions_upperbound!($(<$($ordinal_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
 
             fn to_bytes(
                 &self,
@@ -56,7 +55,6 @@ pub use traits_implement_bytes_tuple;
 //     () => {
 //         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for () {
 //             const REPRESENTATION_SIZE: usize = core::mem::size_of::<()>();
-//             const BYTES_ALIGN: usize = core::mem::align_of::<()>();
 
 //             fn from_bytes(
 //                 _bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE],
