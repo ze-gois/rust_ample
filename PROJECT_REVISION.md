@@ -34,23 +34,23 @@ userspace-specific memory policy.
 Completed:
 
 - `BYTES_SIZE` became `REPRESENTATION_SIZE`;
-- representation is the canonical term; wire and serialized representation are
-  not separate ontological categories;
-- `BYTES_ALIGN` was removed from `Bytes` because it only propagated Rust
-  memory alignment and had no representation behavior;
-- userspace allocation no longer derives object storage from representation
-  extent;
+- representation is the canonical term;
+- `BYTES_ALIGN` was removed from `Bytes` because it described Rust memory
+  alignment rather than representation;
+- userspace allocation no longer derives storage from representation extent;
 - the integrated hub gate passed after the representation change.
 
 ## Sprint I.3 — Allocation Semantics
 
-In progress:
+Completed:
 
 - `Allocating` is the canonical unsafe allocation capability;
-- `core::alloc::Layout` is the canonical description of allocation layout;
-- the old `Allocatable` / `AllocatableResult` abstraction was removed;
+- `core::alloc::Layout` is the canonical allocation layout description;
+- `Allocatable` and `AllocatableResult` were removed;
 - dormant allocation experiments and orphaned modules were deleted;
-- linked containers were decoupled from `Bytes`, `Origin`, and `Destination`;
-- allocation strategy belongs to the allocator, not to the represented value.
+- linked containers were decoupled from `Bytes`, `Origin`, and
+  `Destination`;
+- allocation strategy belongs to the allocator, not to the represented value;
+- the integrated hub gate passed after the allocation revision.
 
 No compatibility promise is made for legacy names during this revision.
