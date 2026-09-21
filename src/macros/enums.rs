@@ -8,7 +8,6 @@ pub mod labeled;
 pub mod labeled_typed;
 
 #[macro_use]
-pub mod flag;
 
 #[macro_use]
 pub mod typed;
