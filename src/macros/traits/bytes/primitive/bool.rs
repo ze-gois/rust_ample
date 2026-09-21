@@ -4,8 +4,6 @@ macro_rules! trait_implement_primitive_bool_bytes {
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for bool {
             const REPRESENTATION_SIZE: usize =
                 <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
-            const BYTES_ALIGN: usize =
-                <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
             fn to_bytes(
                 &self,
