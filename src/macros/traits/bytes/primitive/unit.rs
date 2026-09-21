@@ -3,7 +3,6 @@ macro_rules! trait_implement_primitive_unit_bytes {
     () => {
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for () {
             const REPRESENTATION_SIZE: usize = core::mem::size_of::<()>();
-            const BYTES_ALIGN: usize = core::mem::align_of::<()>();
 
             fn from_bytes(
                 _bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE],
