@@ -1,103 +1,70 @@
-use crate::traits::Allocatable;
-use crate::traits::AllocatableResult;
-use crate::traits::Bytes;
-use core::marker::PhantomData;
+use crate::traits::Allocating;
+use core::alloc::Layout;
 
 #[derive(Debug)]
-pub struct LinkedNode<Origin, Destination, AllocatorOrigin, T>
-where
-    T: Bytes<Origin, Destination>,
-{
+pub struct LinkedNode<T> {
     pub value: T,
     pub next: Option<*mut Self>,
-    _phantom_o: PhantomData<Origin>,
-    _phantom_d: PhantomData<Destination>,
-    _phantom_a: PhantomData<AllocatorOrigin>,
 }
 
-impl<Origin, Destination, AllocatorOrigin, T> LinkedNode<Origin, Destination, AllocatorOrigin, T>
-where
-    T: Bytes<Origin, Destination>,
-{
+impl<T> LinkedNode<T> {
     pub fn new(value: T) -> Self {
-        Self {
-            value,
-            next: None,
-            _phantom_o: PhantomData,
-            _phantom_d: PhantomData,
-            _phantom_a: PhantomData,
+        Self { value, next: None }
+    }
+
+    pub fn allocate<A: Allocating>(value: T) -> *mut Self {
+        let layout = Layout::new::<Self>();
+        let pointer = A::allocate(layout) as *mut Self;
+
+        if pointer.is_null() {
+            return pointer;
         }
+
+        unsafe {
+            pointer.write(Self::new(value));
+        }
+
+        pointer
     }
 
-    /// Create a node with the given value and allocate it using the provided allocator type
-    pub fn allocate_node<A>(value: T) -> core::result::Result<A::Ok, A::Error>
-    where
-        A: Allocatable<AllocatorOrigin>,
-    {
-        // Use the A's allocate method but cast the result to our node type
-        let ptr = unsafe {
-            // Allocate raw memory
-            let raw_ptr = A::allocate(1)?;
+    /// # Safety
+    ///
+    /// `pointer` must designate a node allocated by `A` with this node's
+    /// layout, and its value must already have been moved or dropped.
+    pub unsafe fn deallocate<A: Allocating>(pointer: *mut Self) -> bool {
+        if pointer.is_null() {
+            return false;
+        }
 
-            // Cast to our node type
-            let node_ptr = raw_ptr.as_ptr() as *mut Self;
-
-            // Initialize the node
-            *node_ptr = Self::new(value);
-
-            node_ptr
-        };
-
-        core::result::Result::Ok(A::Ok::from_raw(ptr as *mut u8))
+        unsafe { A::deallocate(pointer as *mut u8, Layout::new::<Self>()) }
     }
 
-    /// Deallocate a node using the provided allocator type
-    pub fn deallocate_node<A>(ptr: *mut Self) -> core::result::Result<A::Ok, A::Error>
-    where
-        A: Allocatable<AllocatorOrigin>,
-    {
-        // Cast the pointer to the allocator's expected type
-        A::deallocate(ptr as *mut A, 1)
-    }
-
-    /// Safely get a reference to the next node
     pub fn next(&self) -> Option<&Self> {
-        unsafe { self.next.map(|ptr| &*ptr) }
+        unsafe { self.next.map(|pointer| &*pointer) }
     }
 
-    /// Safely get a mutable reference to the next node
     pub fn next_mut(&mut self) -> Option<&mut Self> {
-        unsafe { self.next.map(|ptr| &mut *ptr) }
+        unsafe { self.next.map(|pointer| &mut *pointer) }
     }
 
-    /// Set the next node
     pub fn set_next(&mut self, next: Option<*mut Self>) {
         self.next = next;
     }
 
-    /// Get a reference to the value stored in the node
     pub fn value(&self) -> &T {
         &self.value
     }
 
-    /// Get a mutable reference to the value stored in the node
     pub fn value_mut(&mut self) -> &mut T {
         &mut self.value
     }
 }
 
-impl<Origin, Destination, AllocatorOrigin, T> Clone
-    for LinkedNode<Origin, Destination, AllocatorOrigin, T>
-where
-    T: Bytes<Origin, Destination> + Clone,
-{
+impl<T: Clone> Clone for LinkedNode<T> {
     fn clone(&self) -> Self {
         Self {
             value: self.value.clone(),
             next: self.next,
-            _phantom_o: PhantomData,
-            _phantom_d: PhantomData,
-            _phantom_a: PhantomData,
         }
     }
 }
