@@ -9,8 +9,6 @@ macro_rules! trait_bytes_naturalize {
             const REPRESENTATION_SIZE: usize =
                 <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::REPRESENTATION_SIZE;
 
-            const BYTES_ALIGN: usize =
-                <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::BYTES_ALIGN;
 
             fn to_bytes(
                 &self,
