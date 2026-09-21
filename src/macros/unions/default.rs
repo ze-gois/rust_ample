@@ -15,7 +15,6 @@
 //             // Union size is the maximum of its fields
 //             const REPRESENTATION_SIZE : usize = $crate::expressions_upperbound!($(<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE),*);
 //             // Union alignment is the maximum alignment
-//             const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$field_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
 
 //             fn to_bytes(&self, endianness: bool) -> [u8; <$union_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
 //                 let mut b = [0u8; <$union_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
