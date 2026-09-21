@@ -64,11 +64,15 @@ macro_rules! flags {
             }
 
             pub const fn contains(self, other: Self) -> bool {
-                if other.0 == 0 {
-                    self.0 == 0
-                } else {
-                    (self.0 & other.0) == other.0
-                }
+                (self.0 & other.0) == other.0
+            }
+
+            pub const fn has_unknown_bits(self) -> bool {
+                self.unknown_bits() != 0
+            }
+
+            pub const fn is_known(self) -> bool {
+                !self.has_unknown_bits()
             }
 
             pub fn acronym(self) -> &'static str {
@@ -76,6 +80,7 @@ macro_rules! flags {
                     $(
                         $bits => $acronym,
                     )*
+                    _ if self.is_known() => "combined",
                     _ => "unknown",
                 }
             }
@@ -85,7 +90,8 @@ macro_rules! flags {
                     $(
                         $bits => $description,
                     )*
-                    _ => $label,
+                    _ if self.is_known() => "Combination of known flags",
+                    _ => "Contains unknown flag bits",
                 }
             }
         }
