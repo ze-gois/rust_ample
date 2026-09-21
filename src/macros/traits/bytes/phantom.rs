@@ -3,7 +3,6 @@ macro_rules! trait_implement_primitive_phantom_bytes {
     () => {
         impl<T> $crate::traits::Bytes<crate::Origin, crate::Origin> for core::marker::PhantomData<T> {
             const REPRESENTATION_SIZE: usize = 0;
-            const BYTES_ALIGN: usize = 0;
 
             fn to_bytes(
                 &self,
