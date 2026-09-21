@@ -37,15 +37,15 @@ The first focus is representation semantics.
 
 Initial findings:
 
-- `BYTES_SIZE` is predominantly used as representation extent.
+- `REPRESENTATION_SIZE` is predominantly used as representation extent.
 - `BYTES_ALIGN` frequently derives from Rust `align_of::<T>()`, mixing two
   different semantic domains.
-- `userspace::memory::heap::Allocating` currently consumes `BYTES_SIZE` and
+- `userspace::memory::heap::Allocating` currently consumes `REPRESENTATION_SIZE` and
   `BYTES_ALIGN` as allocation layout; that coupling must be removed in Sprint
   I.3.
 - The canonical term is representation. Terms such as wire or serialized
   representation are not separate ontological categories.
-- The revision must decide whether `BYTES_SIZE` and `BYTES_ALIGN` should be
+- The revision must decide whether `REPRESENTATION_SIZE` and `BYTES_ALIGN` should be
   renamed, split, or otherwise made semantically explicit before changing
   consumers.
 
