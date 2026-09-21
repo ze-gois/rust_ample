@@ -43,7 +43,6 @@ macro_rules! r#enum {
 
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $enum_identifier {
             const REPRESENTATION_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
-            const BYTES_ALIGN : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
             fn primitive_load_size(&self) -> usize {
                 <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE
