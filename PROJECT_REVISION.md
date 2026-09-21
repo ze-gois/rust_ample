@@ -13,12 +13,14 @@ The first focus is representation semantics.
 
 - `Bytes<Origin, Destination>` describes representation.
 - Representation size and Rust in-memory size are distinct concepts.
-- Representation alignment and Rust in-memory alignment are distinct concepts.
-- Allocation must not infer object layout from serialized representation size.
+- Serialization and deserialization are operations over representation.
+- Representation alignment, if such a property is retained, must describe
+  representation rather than Rust in-memory alignment.
+- Allocation must not infer object layout from representation size.
 - `Origin` and `Destination` remain meaningful dimensions of representation;
   current diagonal uses do not justify collapsing them.
 - Macro-generated representation must remain the source of truth for generated
-  constants and serialization behavior.
+  constants and representation behavior.
 
 ## Naming laws
 
@@ -35,12 +37,14 @@ The first focus is representation semantics.
 
 Initial findings:
 
-- `BYTES_SIZE` is predominantly used as serialized/representation extent.
+- `BYTES_SIZE` is predominantly used as representation extent.
 - `BYTES_ALIGN` frequently derives from Rust `align_of::<T>()`, mixing two
   different semantic domains.
 - `userspace::memory::heap::Allocating` currently consumes `BYTES_SIZE` and
   `BYTES_ALIGN` as allocation layout; that coupling must be removed in Sprint
   I.3.
+- The canonical term is representation. Terms such as wire or serialized
+  representation are not separate ontological categories.
 - The revision must decide whether `BYTES_SIZE` and `BYTES_ALIGN` should be
   renamed, split, or otherwise made semantically explicit before changing
   consumers.
