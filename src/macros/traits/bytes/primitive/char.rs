@@ -3,7 +3,6 @@ macro_rules! trait_implement_primitive_char_bytes {
     () => {
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for char {
             const REPRESENTATION_SIZE: usize = 4;
-            const BYTES_ALIGN: usize = 4;
 
             fn to_bytes(
                 &self,
