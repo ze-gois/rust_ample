@@ -7,8 +7,6 @@ macro_rules! trait_implement_bytes_pointer {
         {
             const REPRESENTATION_SIZE: usize =
                 <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
-            const BYTES_ALIGN: usize =
-                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
             fn to_bytes(
                 &self,
@@ -53,8 +51,6 @@ macro_rules! trait_implement_bytes_pointer {
         {
             const REPRESENTATION_SIZE: usize =
                 <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
-            const BYTES_ALIGN: usize =
-                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
             fn to_bytes(
                 &self,
