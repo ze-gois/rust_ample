@@ -1,159 +1,88 @@
-pub mod queue;
-
-// use crate::traits::Allocatable;
-
-// #[derive(Debug, Clone, Copy)]
-// pub struct DoubleLinkedNode<Load, Observer, Reference>
-// where
-//     Load: Allocatable<Observer, Reference>,
-// {
-//     pub value: Load,
-//     pub ancestor: *const DoubleLinkedNode<Load, Observer, Reference>,
-//     pub sucessor: *const DoubleLinkedNode<Load, Observer, Reference>,
-// }
-
-// impl<Load> DoubleLinkedNode<Load, crate::Origin, crate::Origin>
-// where
-//     Load: Allocatable<crate::Origin, crate::Origin>,
-// {
-//     pub fn set_sucessor(&mut self, node: *const Self) {
-//         self.sucessor = node;
-//     }
-
-//     pub fn set_ancestor(&mut self, node: *const Self) {
-//         self.ancestor = node;
-//     }
-// }
-
-// impl<Load: Allocatable> Loading<Load> for DoubleLinkedNode<Load> {
-//     fn new(value: Load) -> Self {
-//         Self {
-//             value,
-//             ancestor: core::ptr::null(),
-//             sucessor: core::ptr::null(),
-//         }
-//     }
-// }
-
-use crate::traits::Allocatable;
-use crate::traits::AllocatableResult;
-use crate::traits::Bytes;
-use core::marker::PhantomData;
+use crate::traits::Allocating;
+use core::alloc::Layout;
 
 #[derive(Debug)]
-pub struct DoubleLinkedNode<Origin, Destination, AllocatorOrigin, T>
-where
-    T: Bytes<Origin, Destination>,
-{
+pub struct DoubleLinkedNode<T> {
     pub value: T,
-    pub ancestor: Option<*mut Self>,
-    pub sucessor: Option<*mut Self>,
-    _phantom_o: PhantomData<Origin>,
-    _phantom_d: PhantomData<Destination>,
-    _phantom_a: PhantomData<AllocatorOrigin>,
+    pub previous: Option<*mut Self>,
+    pub next: Option<*mut Self>,
 }
 
-impl<Origin, Destination, AllocatorOrigin, T>
-    DoubleLinkedNode<Origin, Destination, AllocatorOrigin, T>
-where
-    T: Bytes<Origin, Destination>,
-{
+impl<T> DoubleLinkedNode<T> {
     pub fn new(value: T) -> Self {
         Self {
             value,
-            ancestor: None,
-            sucessor: None,
-            _phantom_o: PhantomData,
-            _phantom_d: PhantomData,
-            _phantom_a: PhantomData,
+            previous: None,
+            next: None,
         }
     }
 
-    /// Create a node with the given value and allocate it using the provided allocator type
-    pub fn allocate_node<A>(value: T) -> core::result::Result<A::Ok, A::Error>
-    where
-        A: Allocatable<AllocatorOrigin>,
-    {
-        // Use the A's allocate method but cast the result to our node type
-        let ptr = unsafe {
-            // Allocate raw memory
-            let raw_ptr = A::allocate(1)?.as_ptr();
+    pub fn allocate<A: Allocating>(value: T) -> *mut Self {
+        let layout = Layout::new::<Self>();
+        let pointer = A::allocate(layout) as *mut Self;
 
-            // Cast to our node type
-            let node_ptr = raw_ptr as *mut Self;
+        if pointer.is_null() {
+            return pointer;
+        }
 
-            // Initialize the node
-            *node_ptr = Self::new(value);
+        unsafe {
+            pointer.write(Self::new(value));
+        }
 
-            node_ptr
-        };
-
-        core::result::Result::Ok(A::Ok::from_raw(ptr as *mut u8))
+        pointer
     }
 
-    /// Deallocate a node using the provided allocator type
-    pub fn deallocate_node<A>(ptr: *mut Self) -> core::result::Result<A::Ok, A::Error>
-    where
-        A: Allocatable<AllocatorOrigin>,
-    {
-        // Cast the pointer to the allocator's expected type
-        A::deallocate(ptr as *mut A, 1)
+    /// # Safety
+    ///
+    /// `pointer` must designate a node allocated by `A` with this node's
+    /// layout, and its value must already have been moved or dropped.
+    pub unsafe fn deallocate<A: Allocating>(pointer: *mut Self) -> bool {
+        if pointer.is_null() {
+            return false;
+        }
+
+        unsafe { A::deallocate(pointer as *mut u8, Layout::new::<Self>()) }
     }
 
-    /// Safely get a reference to the next node
-    pub fn ancestor(&self) -> Option<&Self> {
-        unsafe { self.ancestor.map(|ptr| &*ptr) }
+    pub fn previous(&self) -> Option<&Self> {
+        unsafe { self.previous.map(|pointer| &*pointer) }
     }
 
-    /// Safely get a mutable reference to the ancestor node
-    pub fn ancestor_mut(&mut self) -> Option<&mut Self> {
-        unsafe { self.ancestor.map(|ptr| &mut *ptr) }
+    pub fn previous_mut(&mut self) -> Option<&mut Self> {
+        unsafe { self.previous.map(|pointer| &mut *pointer) }
     }
 
-    /// Set the ancestor node
-    pub fn set_ancestor(&mut self, ancestor: Option<*mut Self>) {
-        self.ancestor = ancestor;
+    pub fn set_previous(&mut self, previous: Option<*mut Self>) {
+        self.previous = previous;
     }
 
-    /// Safely get a reference to the next node
-    pub fn sucessor(&self) -> Option<&Self> {
-        unsafe { self.sucessor.map(|ptr| &*ptr) }
+    pub fn next(&self) -> Option<&Self> {
+        unsafe { self.next.map(|pointer| &*pointer) }
     }
 
-    /// Safely get a mutable reference to the sucessor node
-    pub fn sucessor_mut(&mut self) -> Option<&mut Self> {
-        unsafe { self.sucessor.map(|ptr| &mut *ptr) }
+    pub fn next_mut(&mut self) -> Option<&mut Self> {
+        unsafe { self.next.map(|pointer| &mut *pointer) }
     }
 
-    /// Set the sucessor node
-    pub fn set_sucessor(&mut self, sucessor: Option<*mut Self>) {
-        self.sucessor = sucessor;
+    pub fn set_next(&mut self, next: Option<*mut Self>) {
+        self.next = next;
     }
 
-    /// Get a reference to the value stored in the node
     pub fn value(&self) -> &T {
         &self.value
     }
 
-    /// Get a mutable reference to the value stored in the node
     pub fn value_mut(&mut self) -> &mut T {
         &mut self.value
     }
 }
 
-impl<Origin, Destination, AllocatorOrigin, T> Clone
-    for DoubleLinkedNode<Origin, Destination, AllocatorOrigin, T>
-where
-    T: Bytes<Origin, Destination> + Clone,
-{
+impl<T: Clone> Clone for DoubleLinkedNode<T> {
     fn clone(&self) -> Self {
         Self {
             value: self.value.clone(),
-            ancestor: self.ancestor,
-            sucessor: self.sucessor,
-            _phantom_o: PhantomData,
-            _phantom_d: PhantomData,
-            _phantom_a: PhantomData,
+            previous: self.previous,
+            next: self.next,
         }
     }
 }
