@@ -30,7 +30,6 @@ macro_rules! r#enum_typed {
 
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $enum_identifier {
             const REPRESENTATION_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE),*);
-            const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
 
             fn primitive_load_size(&self) -> usize {
                 match self {
