@@ -9,7 +9,6 @@ macro_rules! struct_tuple {
 
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $struct_identifier {
             const REPRESENTATION_SIZE : usize = $(<$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE + )* 0;
-            const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$ordinal_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN ),*);
 
 
             fn to_bytes(&self, endianness: bool) -> [u8; <$struct_identifier as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
