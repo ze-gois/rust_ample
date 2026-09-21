@@ -1,21 +1,20 @@
-use crate::traits::{Allocatable, AllocatableResult, Bytes};
+use crate::traits::Allocating;
+use core::alloc::Layout;
 
-pub fn terminate<Origin, Destination, A: Allocatable<Origin>>(
-    head: &str,
-) -> core::result::Result<A::Ok, A::Error>
-where
-    u8: Bytes<Origin, Destination>,
-{
-    let tailed = A::allocate_zeroed(head.len() * core::mem::size_of::<u8>() + 1)?;
-    let tailed = tailed.as_ptr() as *mut u8;
+pub fn terminate<A: Allocating>(head: &str) -> *mut u8 {
+    let Ok(layout) = Layout::array::<u8>(head.len().saturating_add(1)) else {
+        return core::ptr::null_mut();
+    };
+
+    let tailed = A::allocate_zeroed(layout);
     if tailed.is_null() {
-        panic!("allocation failed");
+        return tailed;
     }
 
     unsafe {
         core::ptr::copy_nonoverlapping(head.as_ptr(), tailed, head.len());
         *tailed.add(head.len()) = 0;
-    };
+    }
 
-    core::result::Result::Ok(A::Ok::from_raw(tailed as *mut u8))
+    tailed
 }
