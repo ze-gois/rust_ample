@@ -15,7 +15,6 @@ macro_rules! trait_implement_bytes_option {
             )?
             {
                 const REPRESENTATION_SIZE: usize = core::mem::size_of::<u8>() + <$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
-                const BYTES_ALIGN: usize = <$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
                 fn from_bytes(bytes: [u8; <Option<$($type)::*> as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE], endianness: bool) -> Self {
                     let mut option_bytes = [0u8; <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
@@ -92,7 +91,6 @@ macro_rules! trait_implement_bytes_option {
 //             // [();B::REPRESENTATION_SIZE]:
 //         {
 //             const REPRESENTATION_SIZE: usize = core::mem::size_of::<u8>() + B::REPRESENTATION_SIZE;
-//             const BYTES_ALIGN: usize = B::BYTES_ALIGN;
 
 //             fn from_bytes(bytes: [u8; <Option<B> as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE], endianness: bool) -> Self {
 //                 let mut option_bytes = [0u8; <u8 as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
