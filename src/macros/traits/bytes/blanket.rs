@@ -2,7 +2,6 @@
 macro_rules! traits_impl_blanket_bytes {
     ($identifier:ident) => {
         impl $crate::traits::Bytes<crate::Origin> for $identifier {
-            const BYTES_ALIGN: usize = 0;
             const REPRESENTATION_SIZE: usize = 0;
             fn from_bytes(
                 _bytes: [u8; <Self as ample::traits::Bytes<ample::Origin>>::REPRESENTATION_SIZE],
