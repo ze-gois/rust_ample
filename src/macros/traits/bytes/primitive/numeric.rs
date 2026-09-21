@@ -4,7 +4,6 @@ macro_rules! trait_implement_primitive_numeric_bytes {
         $(
             impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $($t)* {
                 const REPRESENTATION_SIZE: usize = core::mem::size_of::<$($t)*>();
-                const BYTES_ALIGN: usize = core::mem::align_of::<$($t)*>();
 
                 fn to_bytes(&self, endianness: bool) -> [u8; <$($t)* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
                     if endianness {
