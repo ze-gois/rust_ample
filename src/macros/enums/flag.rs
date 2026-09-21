@@ -84,7 +84,6 @@ macro_rules! enum_flag {
 
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $enum_identifier {
             const REPRESENTATION_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
-            const BYTES_ALIGN : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
             fn to_bytes(&self, endianness: bool) -> [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
                 let mut bytes = [0u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
