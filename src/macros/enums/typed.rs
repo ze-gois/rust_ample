@@ -29,7 +29,7 @@ macro_rules! r#enum_typed {
         }
 
         impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $enum_identifier {
-            const BYTES_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE),*);
+            const REPRESENTATION_SIZE : usize = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE + $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE),*);
             const BYTES_ALIGN : usize = $crate::expressions_upperbound!($(<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN),*);
 
             fn primitive_load_size(&self) -> usize {
@@ -42,8 +42,8 @@ macro_rules! r#enum_typed {
                 }
             }
 
-            fn to_bytes(&self, endianness: bool) -> [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
-                let mut bytes = [0u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+            fn to_bytes(&self, endianness: bool) -> [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
+                let mut bytes = [0u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
 
                 match self {
                     $(
@@ -51,11 +51,11 @@ macro_rules! r#enum_typed {
                             let discriminant = self.discriminant();
 
                             let mut o = 0;
-                            bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
+                            bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE)].copy_from_slice(
                                 &<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(&discriminant,endianness)
                             );
-                            o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
-                            bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)].copy_from_slice(
+                            o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
+                            bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE)].copy_from_slice(
                                 &<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(payload,endianness)
                             );
                             bytes
@@ -64,18 +64,18 @@ macro_rules! r#enum_typed {
                 }
             }
 
-            fn from_bytes(bytes: [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
+            fn from_bytes(bytes: [u8;<Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE], endianness: bool) -> Self {
                 let mut o = 0;
-                let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                discriminant_bytes.copy_from_slice(&bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)]);
+                let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
+                discriminant_bytes.copy_from_slice(&bytes[o..(o+<$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE)]);
                 let discriminant = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(discriminant_bytes, endianness);
-                o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
                 match discriminant {
                     $(
                         $variant_discriminant => {
                             Self::$variant_identifier({
-                                let mut payload = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                                payload.copy_from_slice(&bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE)]);
+                                let mut payload = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
+                                payload.copy_from_slice(&bytes[o..(o+<$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE)]);
                                 <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(payload,endianness)
                             })
                         },
@@ -86,16 +86,16 @@ macro_rules! r#enum_typed {
 
             fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
                 let mut o = 0;
-                let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), discriminant_bytes.as_mut_ptr(), <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                let mut discriminant_bytes = [0u8; <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
+                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), discriminant_bytes.as_mut_ptr(), <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE) };
                 let discriminant = <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(discriminant_bytes, endianness);
-                o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+                o = o + <$enum_discriminant_type as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
                 match discriminant {
                     $(
                         $variant_discriminant => {
                             Self::$variant_identifier({
-                                let mut payload_bytes = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), payload_bytes.as_mut_ptr(), <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                                let mut payload_bytes = [0u8; <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
+                                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), payload_bytes.as_mut_ptr(), <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE) };
                                 <$($variant_type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(payload_bytes, endianness)
                             })
                         },
