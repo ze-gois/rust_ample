@@ -16,7 +16,6 @@ macro_rules! trait_implement_bytes_slice {
             {
                 const REPRESENTATION_SIZE: usize =
                     N * <$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
-                    const BYTES_ALIGN: usize = <$($type)::* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
 
                 fn to_bytes(
                     &self,
