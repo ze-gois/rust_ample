@@ -30,7 +30,6 @@ macro_rules! trait_bytes_place {
     () => {
         pub trait Bytes<Origin, Destination> {
             const REPRESENTATION_SIZE: usize;
-            const BYTES_ALIGN: usize;
 
             fn primitive_load_size(&self) -> usize {
                 Self::REPRESENTATION_SIZE
