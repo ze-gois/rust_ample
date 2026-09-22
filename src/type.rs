@@ -19,3 +19,8 @@ pub use alloc::vec::Vec;
 
 /// Canonical linked-list structure exposed through the ample vocabulary.
 pub type List<T> = LinkedList<T>;
+
+
+pub mod list;
+pub mod node;
+pub mod string;
