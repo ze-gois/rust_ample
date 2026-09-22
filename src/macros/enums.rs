@@ -8,8 +8,6 @@ pub mod labeled;
 pub mod labeled_typed;
 
 #[macro_use]
-
-#[macro_use]
 pub mod typed;
 
 #[macro_use]
