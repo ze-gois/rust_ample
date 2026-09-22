@@ -11,16 +11,12 @@ pub struct Origin {}
 
 #[macro_use]
 pub mod macros;
-pub mod list;
 pub mod math;
-pub mod node;
 pub mod result;
-pub mod string;
+pub mod r#struct;
 pub mod traits;
-pub mod vec;
-pub use string::String;
-pub use vec::Vec;
 
 pub use result::{Error, Ok, Result};
+pub use r#struct::{BTreeMap, BTreeSet, BinaryHeap, Box, LinkedList, List, Rc, String, Vec, VecDeque};
 
 trait_implement_primitives!();
