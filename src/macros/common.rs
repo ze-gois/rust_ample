@@ -2,10 +2,4 @@
 pub mod expressions;
 
 #[macro_use]
-pub mod temp;
-
-#[macro_use]
 pub mod types;
-
-#[macro_use]
-pub mod undescore;
