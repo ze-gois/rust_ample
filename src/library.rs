@@ -13,7 +13,7 @@ pub struct Origin {}
 pub mod macros;
 pub mod math;
 pub mod result;
-pub mod r#struct;
+pub mod r#type;
 pub mod traits;
 
 pub use result::{Error, Ok, Result};

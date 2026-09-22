@@ -1,7 +1,7 @@
-//! Fundamental structures re-exported from `alloc`.
+//! Fundamental types re-exported from `alloc`.
 //!
 //! `ample` does not reimplement the Rust allocation ecosystem for ordinary
-//! use. These names provide one stable structural vocabulary for consumers
+//! use. These names provide one stable type vocabulary for consumers
 //! such as `userspace` and `webspace`, while leaving room for experimental
 //! structures elsewhere in the crate.
 
