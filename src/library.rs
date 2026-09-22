@@ -17,6 +17,5 @@ pub mod r#struct;
 pub mod traits;
 
 pub use result::{Error, Ok, Result};
-pub use r#struct::{BTreeMap, BTreeSet, BinaryHeap, Box, LinkedList, List, Rc, String, Vec, VecDeque};
 
 trait_implement_primitives!();
