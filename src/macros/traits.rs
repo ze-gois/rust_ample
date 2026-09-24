@@ -1,4 +1,3 @@
-pub mod allocatable;
 pub mod bytes;
 pub mod from;
 pub mod partial_eq;

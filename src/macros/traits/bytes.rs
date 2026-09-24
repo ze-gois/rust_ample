@@ -29,66 +29,65 @@ pub mod primitive;
 macro_rules! trait_bytes_place {
     () => {
         pub trait Bytes<Origin, Destination> {
-            const BYTES_SIZE: usize;
-            const BYTES_ALIGN: usize;
+            const REPRESENTATION_SIZE: usize;
 
             fn primitive_load_size(&self) -> usize {
-                Self::BYTES_SIZE
+                Self::REPRESENTATION_SIZE
             }
 
             fn to_bytes(
                 &self,
                 endianness: bool,
-            ) -> [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]
+            ) -> [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]
             where
-                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]:;
+                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]:;
 
             fn to_le_bytes(
                 &self,
-            ) -> [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]
+            ) -> [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]
             where
-                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]:,
+                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]:,
             {
                 self.to_bytes(true)
             }
 
             fn to_be_bytes(
                 &self,
-            ) -> [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]
+            ) -> [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]
             where
-                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]:,
+                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]:,
             {
                 self.to_bytes(false)
             }
 
             fn from_bytes(
-                bytes: [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE],
+                bytes: [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE],
                 endianness: bool,
             ) -> Self
             where
                 Self: Sized,
-                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]:;
+                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]:;
 
             fn from_bytes_pointer(pointer: *const u8, endianness: bool) -> Self
             where
                 Self: Sized;
 
             fn from_le_bytes(
-                bytes: [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE],
+                bytes: [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE],
             ) -> Self
             where
                 Self: Sized,
-                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]:,
+                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]:,
             {
                 Self::from_bytes(bytes, true)
             }
 
             fn from_be_bytes(
-                bytes: [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE],
+                bytes: [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE],
             ) -> Self
             where
                 Self: Sized,
-                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::BYTES_SIZE]:,
+                [u8; <Self as crate::traits::Bytes<Origin, Destination>>::REPRESENTATION_SIZE]:,
             {
                 Self::from_bytes(bytes, false)
             }

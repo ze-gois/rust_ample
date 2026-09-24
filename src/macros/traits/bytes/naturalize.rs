@@ -4,23 +4,21 @@ macro_rules! trait_bytes_naturalize {
         impl<A> $($receiver)::*::traits::Bytes<$($receiver)::*::Origin> for A
         where
             A: $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>,
-            [u8; <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::BYTES_SIZE]:,
+            [u8; <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::REPRESENTATION_SIZE]:,
         {
-            const BYTES_SIZE: usize =
-                <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::BYTES_SIZE;
+            const REPRESENTATION_SIZE: usize =
+                <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::REPRESENTATION_SIZE;
 
-            const BYTES_ALIGN: usize =
-                <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::BYTES_ALIGN;
 
             fn to_bytes(
                 &self,
                 endianness: bool,
-            ) -> [u8; <Self as $($receiver)::*::traits::Bytes<$($receiver)::*::Origin>>::BYTES_SIZE] {
+            ) -> [u8; <Self as $($receiver)::*::traits::Bytes<$($receiver)::*::Origin>>::REPRESENTATION_SIZE] {
                 <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::to_bytes(self, endianness)
             }
 
             fn from_bytes(
-                bytes: [u8; <Self as $($receiver)::*::traits::Bytes<$($receiver)::*::Origin>>::BYTES_SIZE],
+                bytes: [u8; <Self as $($receiver)::*::traits::Bytes<$($receiver)::*::Origin>>::REPRESENTATION_SIZE],
                 endianness: bool,
             ) -> Self {
                 <A as $($donnor)::*::traits::Bytes<$($donnor)::*::Origin>>::from_bytes(bytes, endianness)

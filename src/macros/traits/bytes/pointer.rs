@@ -5,18 +5,16 @@ macro_rules! trait_implement_bytes_pointer {
         where
             B: $crate::traits::Bytes<crate::Origin, crate::Origin>,
         {
-            const BYTES_SIZE: usize =
-                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
-            const BYTES_ALIGN: usize =
-                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
+            const REPRESENTATION_SIZE: usize =
+                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
 
             fn to_bytes(
                 &self,
                 endianness: bool,
-            ) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE]
+            ) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE]
             {
                 let mut bytes =
-                    [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                    [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
                 let pointer_as_usize = &(*self as usize);
                 let usize_bytes = if endianness {
                     <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(
@@ -32,17 +30,17 @@ macro_rules! trait_implement_bytes_pointer {
             }
 
             fn from_bytes(
-                bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE],
+                bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE],
                 endianness: bool,
             ) -> Self {
-                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
                 usize_bytes.copy_from_slice(&bytes);
                 <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes, endianness) as Self
             }
 
             fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
-                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer, usize_bytes.as_mut_ptr(), <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
+                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer, usize_bytes.as_mut_ptr(), <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE) };
                 <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes, endianness) as Self
             }
         }
@@ -51,34 +49,32 @@ macro_rules! trait_implement_bytes_pointer {
         where
             B: $crate::traits::Bytes<crate::Origin, crate::Origin>,
         {
-            const BYTES_SIZE: usize =
-                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
-            const BYTES_ALIGN: usize =
-                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_ALIGN;
+            const REPRESENTATION_SIZE: usize =
+                <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
 
             fn to_bytes(
                 &self,
                 endianness: bool,
-            ) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE]
+            ) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE]
             {
-                let mut bytes = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                let mut bytes = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
                 let usize_bytes = <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_bytes(&(*self as usize), endianness);
                 bytes.copy_from_slice(&usize_bytes);
                 bytes
             }
 
             fn from_bytes(
-                bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE],
+                bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE],
                 endianness: bool,
             ) -> Self {
-                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
                 usize_bytes.copy_from_slice(&bytes);
                 <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes,endianness) as Self
             }
 
             fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
-                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer, usize_bytes.as_mut_ptr(), <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                let mut usize_bytes = [0u8; <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
+                unsafe { core::ptr::copy_nonoverlapping(bytes_pointer, usize_bytes.as_mut_ptr(), <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE) };
                 <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(usize_bytes, endianness) as Self
             }
         }
@@ -90,9 +86,9 @@ macro_rules! trait_implement_bytes_pointer {
 //     ($($($type:tt)::* $(<$($type_generics:tt),*>)? ),*) => {
 //         $(
 //             impl $crate::traits::Bytes<crate::Origin, crate::Origin> for *const $($type)::* {
-//                 const BYTES_SIZE: usize = <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE;
+//                 const REPRESENTATION_SIZE: usize = <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE;
 
-//                 fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
+//                 fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
 //                     let pointer_as_usize = &(*self as usize);
 //                     if endianness {
 //                         <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::to_le_bytes(pointer_as_usize)
@@ -101,7 +97,7 @@ macro_rules! trait_implement_bytes_pointer {
 //                     }
 //                 }
 
-//                 fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
+//                 fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE], endianness: bool) -> Self {
 //                     if endianness {
 //                         <usize as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_le_bytes(bytes) as Self
 //                     } else {
@@ -111,9 +107,9 @@ macro_rules! trait_implement_bytes_pointer {
 //             }
 
 //             impl $crate::traits::Bytes<crate::Origin, crate::Origin> for *mut $($type)::* {
-//                 const BYTES_SIZE: usize = core::mem::size_of::<usize>();
+//                 const REPRESENTATION_SIZE: usize = core::mem::size_of::<usize>();
 
-//                 fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
+//                 fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
 //                     if endianness {
 //                         usize::to_le_bytes(*self as usize)
 //                     } else {
@@ -121,7 +117,7 @@ macro_rules! trait_implement_bytes_pointer {
 //                     }
 //                 }
 
-//                 fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
+//                 fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE], endianness: bool) -> Self {
 //                     if endianness {
 //                         usize::from_le_bytes(bytes) as Self
 //                     } else {
@@ -138,9 +134,9 @@ macro_rules! trait_implement_bytes_pointer {
 //     ($($($type:tt)::*),*) => {
 //         $(
 //             impl $crate::traits::Bytes<crate::Origin, crate::Origin> for *const $($type)::* {
-//                 const BYTES_SIZE: usize = core::mem::size_of::<Self>();
+//                 const REPRESENTATION_SIZE: usize = core::mem::size_of::<Self>();
 
-//                 fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
+//                 fn to_bytes(&self, endianness: bool) -> [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
 //                     if endianness {
 //                         usize::to_le_bytes(*self as usize)
 //                     } else {
@@ -148,7 +144,7 @@ macro_rules! trait_implement_bytes_pointer {
 //                     }
 //                 }
 
-//                 fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
+//                 fn from_bytes(bytes: [u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE], endianness: bool) -> Self {
 //                     if endianness {
 //                         usize::from_le_bytes(bytes) as Self
 //                     } else {

@@ -3,10 +3,9 @@ macro_rules! trait_implement_primitive_numeric_bytes {
     ($($($t:tt)::*),*) => {
         $(
             impl $crate::traits::Bytes<crate::Origin, crate::Origin> for $($t)* {
-                const BYTES_SIZE: usize = core::mem::size_of::<$($t)*>();
-                const BYTES_ALIGN: usize = core::mem::align_of::<$($t)*>();
+                const REPRESENTATION_SIZE: usize = core::mem::size_of::<$($t)*>();
 
-                fn to_bytes(&self, endianness: bool) -> [u8; <$($t)* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE] {
+                fn to_bytes(&self, endianness: bool) -> [u8; <$($t)* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE] {
                     if endianness {
                         core::primitive::$($t)*::to_le_bytes(*self)
                     } else {
@@ -14,7 +13,7 @@ macro_rules! trait_implement_primitive_numeric_bytes {
                     }
                 }
 
-                fn from_bytes(bytes: [u8; <$($t)* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE], endianness: bool) -> Self {
+                fn from_bytes(bytes: [u8; <$($t)* as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE], endianness: bool) -> Self {
                     if endianness {
                         core::primitive::$($t)*::from_le_bytes(bytes)
                     } else {
@@ -24,8 +23,8 @@ macro_rules! trait_implement_primitive_numeric_bytes {
 
                 fn from_bytes_pointer(bytes_pointer: *const u8, endianness: bool) -> Self {
                     let o = 0;
-                    let mut numeric_bytes = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE];
-                    unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), numeric_bytes.as_mut_ptr(), <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::BYTES_SIZE) };
+                    let mut numeric_bytes = [0u8; <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE];
+                    unsafe { core::ptr::copy_nonoverlapping(bytes_pointer.add(o), numeric_bytes.as_mut_ptr(), <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::REPRESENTATION_SIZE) };
                     <Self as $crate::traits::Bytes<crate::Origin, crate::Origin>>::from_bytes(numeric_bytes, endianness)
                 }
             }

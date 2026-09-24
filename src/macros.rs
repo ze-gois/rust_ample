@@ -3,7 +3,7 @@ pub mod common;
 #[macro_use]
 pub mod enums;
 #[macro_use]
-pub mod list;
+pub mod flags;
 #[macro_use]
 pub mod primitive;
 #[macro_use]
